@@ -1,0 +1,7 @@
+cmake-build-debug/
+testcases/
+.gitignore
+.clang-format
+.clang-tidy
+.idea/
+run-test
