@@ -15,7 +15,7 @@ class list {
       data = nullptr;
     }
     explicit node(T &&D, node *N = nullptr, node *P = nullptr) : next(N), prev(P) { data = new T(std::move(D)); }
-    explicit node(T &D, node *N = nullptr, node *P = nullptr) : next(N), prev(P) { data = new T(std::move(D)); }
+    explicit node(const T &D, node *N = nullptr, node *P = nullptr) : next(N), prev(P) { data = new T(std::move(D)); }
     ~node() { delete data; };
   };
 
@@ -200,7 +200,7 @@ class list {
     --currentSize;
     return pos;
   }
-  void push_back(T &value) {
+  void push_back(const T &value) {
     node *tmp = new node(value, tail, tail->prev);
     tail->prev->next = tmp;
     tail->prev = tmp;

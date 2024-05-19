@@ -115,6 +115,12 @@ class BPlusTree {
         file->write(st[i]);
       }
     }
+    void reset() {
+      size = 0;
+      max_pos = 0;
+      root_pos = 0;
+      st.clear();
+    }
   };
   File node_file;          // Successively storage of WTreeNode.
   File node_storage_file;  // Information of node_storage.
@@ -145,6 +151,12 @@ class BPlusTree {
     for (int i = 0; i < n->ch_num; ++i) {
       node_file.seekp(wn.ch_pos[i] * sizeof(WTreeNode));
       write_node(n->children[i]);
+    }
+    delete n;
+  }
+  void destroy_node(TreeNode *n) {
+    for (int i = 0; i < n->ch_num; ++i) {
+      destroy_node(n->children[i]);
     }
     delete n;
   }
@@ -457,6 +469,16 @@ class BPlusTree {
     vector<value_t> res;
     find(root, key, res);
     return std::move(res);
+  }
+  void clear() {
+    node_file.clear();
+    node_storage_file.clear();
+    block_file.clear();
+    block_storage_file.clear();
+    destroy_node(root);
+    node_storage.reset();
+    block_storage.reset();
+    root = new TreeNode{nullptr, 0, node_storage.assign(), block_storage.assign()};
   }
 };
 }  // namespace CrazyDave

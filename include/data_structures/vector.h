@@ -22,6 +22,26 @@ class vector {
     alloc.deallocate(tmp, capacity);
     capacity <<= 1;
   }
+  void quick_sort(T *arr, int len, bool cmp(const T &, const T &)) {
+    if (len <= 1) {
+      return;
+    }
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, len - 1);
+    T &pi = arr[dis(gen)];
+    int i = 0, j = 0, k = len;
+    while (i < k) {
+      if (cmp(arr[i], pi))
+        std::swap(arr[i++], arr[j++]);
+      else if (cmp(pi, arr[i]))
+        std::swap(arr[i], arr[--k]);
+      else
+        ++i;
+    }
+    quick_sort(arr, j, cmp);
+    quick_sort(arr + k, len - k, cmp);
+  }
 
  public:
   class const_iterator;
@@ -205,6 +225,7 @@ class vector {
     (data + currentSize - 1)->~T();
     --currentSize;
   }
+  void sort(bool cmp(const T &, const T &)) { quick_sort(data, currentSize, cmp); }
 };
 }  // namespace CrazyDave
-#endif // SJTU_VECTOR_HPP
+#endif  // SJTU_VECTOR_HPP

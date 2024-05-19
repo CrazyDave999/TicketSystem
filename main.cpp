@@ -1,3 +1,6 @@
-#include "common/config.hpp"
-#include "data_structures/BPT.hpp"
-int main() { return 0; }
+#include "common/management_system.hpp"
+CrazyDave::ManagementSystem m_sys;
+int main() {
+  m_sys.run();
+  return 0;
+}
