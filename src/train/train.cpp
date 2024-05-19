@@ -296,7 +296,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   } else {
     if (wait) {
       auto trade_vec = trade_storage_.find(user_name);
-      q_sys_.queue.push_back({user_name, train_id, i1, i2, j, num, (int)trade_vec.size()});
+      q_sys_.push({user_name, train_id, i1, i2, j, num, (int)trade_vec.size()});
       trade_storage_.insert(user_name, Trade{time_stamp, Status::PENDING, train_id,
                                              train.time_ranges_[i1].second + DateTime{depart_date, {}},
                                              train.time_ranges_[i2].first + DateTime{depart_date, {}}, station_1, i1,
@@ -326,7 +326,7 @@ auto TrainSystem::refund_ticket(const std::string &user_name, int n) -> bool {
   return true;
 }
 void TrainSystem::check_queue(const std::string &train_id, int station_index_1, int station_index_2, int date_index) {
-  for (auto it = q_sys_.queue.begin(); it != q_sys_.queue.end(); ++it) {
+  for (auto it = q_sys_.begin(); it != q_sys_.end(); ++it) {
     auto &query = *it;
     if (query.train_id_ != train_id || query.date_index_ != date_index || query.station_index_2_ < station_index_1 ||
         query.station_index_1_ > station_index_2) {
@@ -340,7 +340,7 @@ void TrainSystem::check_queue(const std::string &train_id, int station_index_1, 
     if (min_num < query.num_) {
       continue;
     }
-    q_sys_.queue.erase(it);
+    q_sys_.erase(it);
     for (int i = query.station_index_1_; i < query.station_index_2_; ++i) {
       train.left_seat_num_[i][date_index] -= query.num_;
     }

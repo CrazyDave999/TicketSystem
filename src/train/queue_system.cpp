@@ -24,5 +24,9 @@ void QueueSystem::reset() {
   queue.clear();
   queue_storage.clear();
 }
+void QueueSystem::push(const QueueSystem::Query &query) { queue.push_back(query); }
+auto QueueSystem::begin() -> list<Query>::iterator { return queue.begin(); }
+auto QueueSystem::end() -> list<Query>::iterator { return queue.end(); }
+void QueueSystem::erase(const list<Query>::iterator &it) { queue.erase(it); }
 
 }  // namespace CrazyDave

@@ -14,6 +14,7 @@ class ManagementSystem;
 enum class QueryType { TIME, COST };
 enum class Status { SUCCESS, PENDING, REFUNDED };
 class TrainSystem;
+class QueueSystem;
 class Train {
   friend TrainSystem;
 
@@ -36,7 +37,6 @@ class Train {
         const Time &start_time, const vector<int> &travel_times, const vector<int> &stop_over_times,
         DateRange sale_date, char type);
 
-  friend auto train_cmp_1(const Train &t1, const Train &t2) -> bool { return t1.train_id_ < t2.train_id_; }
   auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
   [[nodiscard]] auto to_string(const Date &date = Date::FIRST_DATE) const -> std::string;
 };

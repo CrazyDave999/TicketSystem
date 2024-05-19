@@ -26,10 +26,7 @@ class vector {
     if (len <= 1) {
       return;
     }
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, len - 1);
-    T &pi = arr[dis(gen)];
+    T &pi = arr[rand() % len];
     int i = 0, j = 0, k = len;
     while (i < k) {
       if (cmp(arr[i], pi))
