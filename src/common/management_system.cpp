@@ -125,9 +125,11 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
           travel_times.push_back(std::stoi(str));
         }
       } else if (key == "-o") {
-        auto vec = StringUtil::Split(value, '|');
-        for (auto &str : vec) {
-          stopover_times.push_back(std::stoi(str));
+        if (value != "_") {
+          auto vec = StringUtil::Split(value, '|');
+          for (auto &str : vec) {
+            stopover_times.push_back(std::stoi(str));
+          }
         }
       } else if (key == "-d") {
         auto vec = StringUtil::Split(value, '|');
@@ -164,7 +166,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
   } else if (tokens[1] == "query_ticket") {
     std::string station1, station2;
     Date date;
-    QueryType type;
+    QueryType type = QueryType::TIME;
     for (int i = 2; i < tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
@@ -187,7 +189,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
   } else if (tokens[1] == "query_transfer") {
     std::string station1, station2;
     Date date;
-    QueryType type;
+    QueryType type = QueryType::TIME;
     for (int i = 2; i < tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
@@ -241,6 +243,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = F_SIMPLE;
     success = train_sys_->buy_ticket(time_stamp, user_name, train_id, date, num, station1, station2, wait);
+
   } else if (tokens[1] == "query_order") {
     std::string user_name = tokens[3];
     output_type = F_SIMPLE;

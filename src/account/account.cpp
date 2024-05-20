@@ -11,7 +11,7 @@ std::ostream &operator<<(std::ostream &os, Account &rhs) {
 auto AccountSystem::add_user(const std::optional<std::string> &cur_user_name, const std::string &user_name,
                              const std::string &password, const std::string &name, const std::string &mail_addr,
                              std::optional<int> privilege) -> bool {
-  if (cur_user_name.has_value()) {
+  if (!is_new_) {
     auto it = login_list_.find(cur_user_name.value());
     if (it == login_list_.end()) {
       return false;
@@ -21,6 +21,7 @@ auto AccountSystem::add_user(const std::optional<std::string> &cur_user_name, co
       return false;
     }
   } else {
+    is_new_ = false;
     privilege = 10;
   }
   Account user{user_name, password, name, mail_addr, privilege.value()};
@@ -103,14 +104,27 @@ auto AccountSystem::modify_profile(const std::string &cur_user_name, const std::
     user.mail_addr_ = mail_addr.value();
   }
   account_storage_.insert(user_name, user);
+  std::cout << user;
   return true;
 }
 auto AccountSystem::check_is_login(const std::string &username) -> bool {
   return login_list_.find(username) != login_list_.end();
 }
-AccountSystem::AccountSystem(ManagementSystem *m_sys) : m_sys_(m_sys) {}
+AccountSystem::AccountSystem(ManagementSystem *m_sys) : m_sys_(m_sys) {
+  header_.open();
+  if (header_.get_is_new()) {
+    return;
+  }
+  header_.seekg(0);
+  header_.read(is_new_);
+}
 void AccountSystem::clear() {
   account_storage_.clear();
   login_list_.clear();
+}
+AccountSystem::~AccountSystem() {
+  header_.seekp(0);
+  header_.write(is_new_);
+  header_.close();
 }
 }  // namespace CrazyDave

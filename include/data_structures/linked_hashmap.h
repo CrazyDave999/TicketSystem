@@ -318,9 +318,9 @@ class linked_hashmap {
     return itr;
   }
 
-  bool empty() const { return currentSize == 0; }
+  [[nodiscard]] bool empty() const { return currentSize == 0; }
 
-  size_t size() const { return (size_t)currentSize; }
+  [[nodiscard]] size_t size() const { return (size_t)currentSize; }
 
   void clear() {
     node *p = head->next;

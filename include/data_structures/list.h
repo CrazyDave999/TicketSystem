@@ -168,8 +168,8 @@ class list {
     const_iterator itr(tail);
     return itr;
   }
-  virtual bool empty() const { return currentSize == 0; }
-  virtual size_t size() const { return currentSize; }
+  [[nodiscard]] virtual bool empty() const { return currentSize == 0; }
+  [[nodiscard]] virtual size_t size() const { return currentSize; }
 
   virtual void clear() {
     while (!empty()) {

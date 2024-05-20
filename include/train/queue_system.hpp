@@ -15,7 +15,11 @@ class QueueSystem {
   };
 
  private:
-  File queue_storage{"tmp/queue"};
+#ifdef DEBUG_FILE_IN_TMP
+  File queue_storage{"tmp/qu"};
+#else
+  File queue_storage{"qu"};
+#endif
   list<Query> queue{};
 
  public:

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "common/utils.hpp"
 #include "common/management_system.hpp"
+#include "common/utils.hpp"
 #include "data_structures/BPT.hpp"
 #include "data_structures/linked_hashmap.h"
 #include "data_structures/vector.h"
@@ -76,7 +76,6 @@ class TrainSystem {
           price_(price),
           num_(num) {}
     friend std::ostream &operator<<(std::ostream &os, const Trade &trade) {
-      os << "[";
       switch (trade.status_) {
         case Status::SUCCESS:
           os << "[success]";
@@ -85,7 +84,7 @@ class TrainSystem {
           os << "[pending]";
           break;
         case Status::REFUNDED:
-          os << "refunded";
+          os << "[refunded]";
           break;
       }
       os << " " << trade.train_id_ << " " << trade.station_1_ << " " << trade.leaving_time_ << " -> "
@@ -118,9 +117,15 @@ class TrainSystem {
   };
 
  private:
+#ifdef DEBUG_FILE_IN_TMP
   BPlusTree<String<21>, Train> train_storage_{"tmp/tr1", "tmp/tr2", "tmp/tr3", "tmp/tr4"};
-  BPlusTree<String<21>, Trade> trade_storage_{"tmp/trade1", "tmp/trade2", "tmp/trade3", "tmp/trade4"};
+  BPlusTree<String<21>, Trade> trade_storage_{"tmp/trd1", "tmp/trd2", "tmp/trd3", "tmp/trd4"};
   BPlusTree<String<41>, Record> station_storage_{"tmp/st1", "tmp/st2", "tmp/st3", "tmp/st4"};
+#else
+  BPlusTree<String<21>, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
+  BPlusTree<String<21>, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
+  BPlusTree<String<41>, Record> station_storage_{"st1", "st2", "st3", "st4"};
+#endif
   QueueSystem q_sys_;
   ManagementSystem *m_sys_{};
 

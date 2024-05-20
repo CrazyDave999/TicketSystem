@@ -6,6 +6,7 @@
 #include "common/string_utils.hpp"
 #include "train/queue_system.hpp"
 #include "train/train.hpp"
+#include <fstream>
 
 namespace CrazyDave {
 class AccountSystem;

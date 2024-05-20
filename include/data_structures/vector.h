@@ -85,7 +85,7 @@ class vector {
     const vector<T> *vec;
 
    public:
-    const_iterator(T *ptr = nullptr, const vector<T> *vec = nullptr) : ptr(ptr), vec(vec) {}
+    explicit const_iterator(T *ptr = nullptr, const vector<T> *vec = nullptr) : ptr(ptr), vec(vec) {}
     const_iterator operator++(int) {
       const_iterator tmp = *this;
       ++ptr;
@@ -169,8 +169,8 @@ class vector {
     const_iterator itr(data + currentSize, this);
     return itr;
   }
-  bool empty() const { return currentSize == 0; }
-  size_t size() const { return currentSize; }
+  [[nodiscard]] bool empty() const { return currentSize == 0; }
+  [[nodiscard]] size_t size() const { return currentSize; }
   void clear() {
     for (int i = 0; i < capacity; ++i) {
       (data + i)->~T();

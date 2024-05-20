@@ -1,7 +1,9 @@
 cmake-build-debug/
-testcases/
+test/testcases/
 .gitignore
 .clang-format
 .clang-tidy
 .idea/
-run-test
+test/run-test
+test/code
+test/

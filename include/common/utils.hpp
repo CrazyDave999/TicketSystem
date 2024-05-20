@@ -355,19 +355,14 @@ struct Date {
   auto operator<=(const Date &rhs) const -> bool { return !(*this > rhs); }
   auto operator>=(const Date &rhs) const -> bool { return !(*this < rhs); }
   auto operator!=(const Date &rhs) const -> bool { return !(*this == rhs); }
-  auto operator++() -> Date & {
-    ++day_;
-    if (day_ > DAY_NUM[month_]) {
-      day_ -= DAY_NUM[month_];
-      ++month_;
-    }
-    return *this;
-  }
   auto operator+=(int day) -> Date & {
     day_ += day;
     if (day_ > DAY_NUM[month_]) {
       day_ -= DAY_NUM[month_];
       ++month_;
+      if (month_ == 13) {
+        month_ = 1;
+      }
     }
     return *this;
   }
@@ -377,6 +372,9 @@ struct Date {
     if (day_ > DAY_NUM[month_]) {
       day_ -= DAY_NUM[month_];
       ++month_;
+      if (month_ == 13) {
+        month_ = 1;
+      }
     }
     return *this;
   }
@@ -396,7 +394,7 @@ struct Date {
     res.day_ -= day;
     if (res.day_ < 1) {
       --res.month_;
-      res.day_ += DAY_PREFIX[res.month_];
+      res.day_ += DAY_NUM[res.month_];
     }
     return res;
   }

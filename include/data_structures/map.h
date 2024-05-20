@@ -3,7 +3,7 @@
 
 #include <cstddef>
 #include <functional>
-#include "common/utils.h"
+#include "common/utils.hpp"
 
 namespace CrazyDave {
 template <class Key, class T, class Compare = std::less<Key>>

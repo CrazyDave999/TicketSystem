@@ -1,6 +1,7 @@
 #include "train/queue_system.hpp"
 namespace CrazyDave {
 QueueSystem::QueueSystem() {
+  queue_storage.open();
   if (queue_storage.get_is_new()) {
     return;
   }
@@ -19,6 +20,7 @@ QueueSystem::~QueueSystem() {
   for (auto &query : queue) {
     queue_storage.write(query);
   }
+  queue_storage.close();
 }
 void QueueSystem::reset() {
   queue.clear();
