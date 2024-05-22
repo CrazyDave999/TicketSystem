@@ -23,7 +23,7 @@ class Train {
   int station_num_{};
   String<41> stations_[100];  // [station]
   int seat_num_{};
-  int left_seat_num_[100][93]{};   // [station][date] date 是从始发站出发的日期 index
+  int left_seat_num_[100][93]{};    // [station][date] date 是从始发站出发的日期 index
   int prices_[100]{};               // [station]
   DateTimeRange time_ranges_[100];  // [station], {arrival time, leaving time},
                                     // record the offset time from the start_time
@@ -38,13 +38,12 @@ class Train {
         DateRange sale_date, char type);
 
   auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
-  [[nodiscard]] auto to_string(const Date &date = Date::FIRST_DATE) const -> std::string;
 };
 class TrainSystem {
   struct Record {
-    String<21> train_id_{};
+    size_t train_hs{};
     int index{};
-    auto operator<(const Record &rhs) const -> bool { return train_id_ < rhs.train_id_; }
+    auto operator<(const Record &rhs) const -> bool { return train_hs < rhs.train_hs; }
   };
   struct Trade {
     int time_stamp_{};
@@ -122,9 +121,9 @@ class TrainSystem {
   BPlusTree<String<21>, Trade> trade_storage_{"tmp/trd1", "tmp/trd2", "tmp/trd3", "tmp/trd4"};
   BPlusTree<String<41>, Record> station_storage_{"tmp/st1", "tmp/st2", "tmp/st3", "tmp/st4"};
 #else
-  BPlusTree<String<21>, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
-  BPlusTree<String<21>, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
-  BPlusTree<String<41>, Record> station_storage_{"st1", "st2", "st3", "st4"};
+  BPlusTree<size_t, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
+  BPlusTree<size_t, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
+  BPlusTree<size_t, Record> station_storage_{"st1", "st2", "st3", "st4"};
 #endif
   QueueSystem q_sys_;
   ManagementSystem *m_sys_{};
@@ -161,7 +160,7 @@ class TrainSystem {
 #ifdef DEBUG_FILE_IN_TMP
   void print_queue() {
     std::cout << "user_name train_id station_index_1 station_index_2 date_index num trade_index\n";
-    for (auto it=q_sys_.begin(); it!=q_sys_.end(); ++it) {
+    for (auto it = q_sys_.begin(); it != q_sys_.end(); ++it) {
       std::cout << *it;
     }
   }

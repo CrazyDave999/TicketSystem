@@ -29,7 +29,7 @@ class ManagementSystem;
 class AccountSystem {
  private:
 #ifdef DEBUG_FILE_IN_TMP
-  BPlusTree<String<21>, Account> account_storage_{"tmp/ac1", "tmp/ac2", "tmp/ac3", "tmp/ac4"};
+  BPlusTree<size_t , Account> account_storage_{"tmp/ac1", "tmp/ac2", "tmp/ac3", "tmp/ac4"};
 #else
   BPlusTree<size_t , Account> account_storage_{"ac1", "ac2", "ac3", "ac4"};
 #endif
