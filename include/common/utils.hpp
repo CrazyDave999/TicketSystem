@@ -197,7 +197,14 @@ class HashString {
  public:
   auto operator()(const String<L> &str) const -> size_t { return HashBytes(str); }
 };
-
+static inline auto HashBytes(const char *bytes) -> size_t {
+  size_t L = strlen(bytes);
+  size_t hash = L;
+  for (size_t i = 0; i < L; ++i) {
+    hash = ((hash << 5) ^ (hash >> 27)) ^ bytes[i];
+  }
+  return hash;
+}
 class File {
   char name[65]{'\0'};
   std::fstream fs;

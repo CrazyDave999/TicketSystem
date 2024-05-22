@@ -31,9 +31,9 @@ class AccountSystem {
 #ifdef DEBUG_FILE_IN_TMP
   BPlusTree<String<21>, Account> account_storage_{"tmp/ac1", "tmp/ac2", "tmp/ac3", "tmp/ac4"};
 #else
-  BPlusTree<String<21>, Account> account_storage_{"ac1", "ac2", "ac3", "ac4"};
+  BPlusTree<size_t , Account> account_storage_{"ac1", "ac2", "ac3", "ac4"};
 #endif
-  linked_hashmap<String<21>, int, HashString<21>> login_list_;
+  linked_hashmap<size_t , int> login_list_;
   ManagementSystem *m_sys_{};
 #ifdef DEBUG_FILE_IN_TMP
   File header_{"tmp/hd"};
@@ -45,7 +45,7 @@ class AccountSystem {
  public:
   explicit AccountSystem(ManagementSystem *m_sys);
   ~AccountSystem();
-  auto check_is_login(const std::string &username) -> bool;
+  auto check_is_login(const std::string &user_name) -> bool;
   auto add_user(const std::optional<std::string> &cur_user_name, const std::string &user_name,
                 const std::string &password, const std::string &name, const std::string &mail_addr,
                 std::optional<int> privilege) -> bool;
