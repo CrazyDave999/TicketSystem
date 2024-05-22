@@ -6,7 +6,7 @@
 #include "data_structures/vector.h"
 
 namespace CrazyDave {
-template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 228>
+template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 108>
 class BPlusTree {
   struct Pair {
     key_t key{};
