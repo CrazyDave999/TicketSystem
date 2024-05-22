@@ -12,12 +12,14 @@ auto AccountSystem::add_user(const std::optional<std::string> &cur_user_name, co
                              const std::string &password, const std::string &name, const std::string &mail_addr,
                              std::optional<int> privilege) -> bool {
   if (!is_new_) {
-    auto cur_name_hs = HashBytes(cur_user_name.value().c_str());
-    auto it = login_list_.find(cur_name_hs);
+    auto cur_hs = HashBytes(cur_user_name.value().c_str());
+    auto it = login_list_.find(cur_hs);
     if (it == login_list_.end()) {
       return false;
     }
-    auto cur_user = account_storage_.find(cur_name_hs)[0];
+    vector<Account> cur_user_vec;
+    account_storage_.find(cur_hs, cur_user_vec);
+    auto &cur_user = cur_user_vec[0];
     if (cur_user.privilege_ <= privilege) {
       return false;
     }
@@ -26,7 +28,7 @@ auto AccountSystem::add_user(const std::optional<std::string> &cur_user_name, co
     privilege = 10;
   }
   Account user{user_name, password, name, mail_addr, privilege.value()};
-  auto user_hs=HashBytes(user_name.c_str());
+  auto user_hs = HashBytes(user_name.c_str());
   account_storage_.insert(user_hs, user);
   return true;
 }
@@ -36,7 +38,8 @@ auto AccountSystem::login(const std::string &user_name, const std::string &passw
   if (it != login_list_.end()) {
     return false;
   }
-  auto user_vec = account_storage_.find(user_hs);
+  vector<Account> user_vec;
+  account_storage_.find(user_hs,user_vec);
   if (user_vec.empty() || user_vec[0].password_ != password) {
     return false;
   }
@@ -58,14 +61,17 @@ auto AccountSystem::query_profile(const std::string &cur_user_name, const std::s
   if (it == login_list_.end()) {
     return false;
   }
-  auto user_hs=HashBytes(user_name.c_str());
-  auto user_vec = account_storage_.find(user_hs);
+  auto user_hs = HashBytes(user_name.c_str());
+  vector<Account> user_vec;
+  account_storage_.find(user_hs,user_vec);
   if (user_vec.empty()) {
     return false;
   }
   auto &user = user_vec[0];
   if (cur_user_name != user_name) {
-    auto cur_user = account_storage_.find(cur_hs)[0];
+    vector<Account> cur_user_vec;
+    account_storage_.find(cur_hs, cur_user_vec);
+    auto &cur_user = cur_user_vec[0];
     if (cur_user.privilege_ <= user.privilege_) {
       return false;
     }
@@ -83,12 +89,15 @@ auto AccountSystem::modify_profile(const std::string &cur_user_name, const std::
     return false;
   }
   auto user_hs = HashBytes(user_name.c_str());
-  auto user_vec = account_storage_.find(user_hs);
+  vector<Account> user_vec;
+  account_storage_.find(user_hs,user_vec);
   if (user_vec.empty()) {
     return false;
   }
   auto &user = user_vec[0];
-  auto cur_user = account_storage_.find(cur_hs)[0];
+  vector<Account> cur_user_vec;
+  account_storage_.find(cur_hs, cur_user_vec);
+  auto &cur_user = cur_user_vec[0];
   if (cur_user_name != user_name && cur_user.privilege_ <= user.privilege_) {
     return false;
   }

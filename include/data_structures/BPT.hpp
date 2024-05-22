@@ -465,10 +465,8 @@ class BPlusTree {
     remove(root, pr);
   }
 
-  vector<value_t> find(const key_t &key) {
-    vector<value_t> res;
+  void find(const key_t &key, vector<value_t> &res){
     find(root, key, res);
-    return res;
   }
   void clear() {
     node_file.clear();

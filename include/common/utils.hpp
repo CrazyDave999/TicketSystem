@@ -471,7 +471,7 @@ std::ostream &operator<<(std::ostream &os, const CrazyDave::TimeRange &time_rang
 std::ostream &operator<<(std::ostream &os, const CrazyDave::DateTimeRange &date_time_range);
 DateTimeRange operator+(const DateTimeRange &d1, const DateTimeRange &d2);
 struct StationDateTime {
-  String<41> station;
+  String<40> station;
   DateTime date_time;
   friend std::ostream &operator<<(std::ostream &os, const StationDateTime &station_date_time) {
     os << station_date_time.station << " " << station_date_time.date_time;

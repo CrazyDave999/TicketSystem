@@ -19,11 +19,11 @@ class Train {
   friend TrainSystem;
 
  private:
-  String<21> train_id_;
+  String<20> train_id_;
   int station_num_{};
-  String<41> stations_[100];  // [station]
+  String<40> stations_[100];  // [station]
   int seat_num_{};
-  int left_seat_num_[100][93]{};    // [station][date] date 是从始发站出发的日期 index
+  int left_seat_num_[100][92]{};    // [station][date] date 是从始发站出发的日期 index
   int prices_[100]{};               // [station]
   DateTimeRange time_ranges_[100];  // [station], {arrival time, leaving time},
                                     // record the offset time from the start_time
@@ -48,11 +48,11 @@ class TrainSystem {
   struct Trade {
     int time_stamp_{};
     Status status_{};
-    String<21> train_id_{};
+    String<20> train_id_{};
     DateTime leaving_time_{};
     DateTime arrival_time_{};
-    String<41> station_1_{};
-    String<41> station_2_{};
+    String<40> station_1_{};
+    String<40> station_2_{};
     int station_index_1_{};
     int station_index_2_{};
     int price_{};
@@ -60,8 +60,8 @@ class TrainSystem {
 
    public:
     Trade() = default;
-    Trade(int time_stamp, const Status &status, const String<21> &train_id, const DateTime &leaving_time,
-          const DateTime &arrival_time, const String<41> &station_1, int station_index_1, const String<41> &station_2,
+    Trade(int time_stamp, const Status &status, const String<20> &train_id, const DateTime &leaving_time,
+          const DateTime &arrival_time, const String<40> &station_1, int station_index_1, const String<40> &station_2,
           int station_index_2, int price, int num)
         : time_stamp_(time_stamp),
           status_(status),
@@ -96,6 +96,7 @@ class TrainSystem {
   struct TicketResult {
     std::string train_id;
     StationDateTimeRange range;
+
     int price;
     int max_num;
     [[nodiscard]] auto total_time() const -> int { return range.second.date_time - range.first.date_time; }
@@ -117,9 +118,9 @@ class TrainSystem {
 
  private:
 #ifdef DEBUG_FILE_IN_TMP
-  BPlusTree<String<21>, Train> train_storage_{"tmp/tr1", "tmp/tr2", "tmp/tr3", "tmp/tr4"};
-  BPlusTree<String<21>, Trade> trade_storage_{"tmp/trd1", "tmp/trd2", "tmp/trd3", "tmp/trd4"};
-  BPlusTree<String<41>, Record> station_storage_{"tmp/st1", "tmp/st2", "tmp/st3", "tmp/st4"};
+  BPlusTree<size_t, Train> train_storage_{"tmp/tr1", "tmp/tr2", "tmp/tr3", "tmp/tr4"};
+  BPlusTree<size_t, Trade> trade_storage_{"tmp/trd1", "tmp/trd2", "tmp/trd3", "tmp/trd4"};
+  BPlusTree<size_t, Record> station_storage_{"tmp/st1", "tmp/st2", "tmp/st3", "tmp/st4"};
 #else
   BPlusTree<size_t, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
   BPlusTree<size_t, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
