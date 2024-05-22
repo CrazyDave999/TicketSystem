@@ -129,6 +129,9 @@ class TrainSystem {
   QueueSystem q_sys_;
   ManagementSystem *m_sys_{};
 
+  /*
+   * 检查候补队列，将能够补票的所有订单补票
+   */
   void check_queue(const std::string &train_id, int station_index_1, int station_index_2, int date_index);
 
  public:
@@ -151,6 +154,18 @@ class TrainSystem {
   auto query_order(const std::string &user_name) -> bool;
   auto refund_ticket(const std::string &user_name, int n) -> bool;
   void clear();
+
+  /*
+   * debugging functions
+   */
+#ifdef DEBUG_FILE_IN_TMP
+  void print_queue() {
+    std::cout << "user_name train_id station_index_1 station_index_2 date_index num trade_index\n";
+    for (auto it=q_sys_.begin(); it!=q_sys_.end(); ++it) {
+      std::cout << *it;
+    }
+  }
+#endif
 };
 }  // namespace CrazyDave
 #endif  // TICKET_SYSTEM_TRAIN_HPP

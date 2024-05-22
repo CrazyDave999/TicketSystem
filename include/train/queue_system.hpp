@@ -7,11 +7,26 @@ class QueueSystem {
   struct Query {
     String<21> user_name_{};
     String<21> train_id_{};
-    int station_index_1_;
-    int station_index_2_;
-    int date_index_;
+    int station_index_1_{};
+    int station_index_2_{};
+    int date_index_{};
     int num_{};
     int trade_index_{};
+    Query() = default;
+    Query(const std::string &user_name, const std::string &train_id, int station_index_1, int station_index_2,
+          int date_index, int num, int trade_index)
+        : user_name_{user_name},
+          train_id_{train_id},
+          station_index_1_{station_index_1},
+          station_index_2_{station_index_2},
+          date_index_{date_index},
+          num_{num},
+          trade_index_{trade_index} {}
+    friend std::ostream &operator<<(std::ostream &os, const Query &query) {
+      os << query.user_name_ << ' ' << query.train_id_ << ' ' << query.station_index_1_ << ' '
+         << query.station_index_2_ << ' ' << query.date_index_ << ' ' << query.num_ << ' ' << query.trade_index_ <<"\n";
+      return os;
+    }
   };
 
  private:

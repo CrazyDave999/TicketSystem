@@ -4,7 +4,6 @@ auto ManagementSystem::check_is_login(const std::string &username) -> bool {
   return account_sys_->check_is_login(username);
 }
 void ManagementSystem::run() {
-  std::ios::sync_with_stdio(false);
   std::string line;
   while (std::getline(std::cin, line)) {
     StringUtil::RTrim(&line);
@@ -41,6 +40,12 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = SIMPLE;
     success = account_sys_->add_user(cur_user_name, user_name, password, name, mail_addr, privilege);
+    if (success) {
+      std::fstream fs;
+      fs.open("../tracking", std::ios::out | std::ios::app);
+      fs << line << "\n";
+      fs.close();
+    }
   } else if (tokens[1] == "login") {
     std::string user_name, password;
     for (int i = 2; i < tokens.size(); i += 2) {
@@ -54,6 +59,14 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = SIMPLE;
     success = account_sys_->login(user_name, password);
+#ifdef DEBUG_TRACKING
+    if (success) {
+      std::fstream fs;
+      fs.open("../tracking", std::ios::out | std::ios::app);
+      fs << line << "\n";
+      fs.close();
+    }
+#endif
   } else if (tokens[1] == "logout") {
     std::string user_name = tokens[3];
     output_type = SIMPLE;
@@ -141,14 +154,38 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     output_type = SIMPLE;
     success = train_sys_->add_train(train_id, seat_num, stations, prices, start_time, travel_times, stopover_times,
                                     sale_date, type);
+#ifdef DEBUG_TRACKING
+    if (success) {
+      std::fstream fs;
+      fs.open("../tracking", std::ios::out | std::ios::app);
+      fs << line << "\n";
+      fs.close();
+    }
+#endif
   } else if (tokens[1] == "delete_train") {
     std::string train_id = tokens[3];
     output_type = SIMPLE;
     success = train_sys_->delete_train(train_id);
+#ifdef DEBUG_TRACKING
+    if (success) {
+      std::fstream fs;
+      fs.open("../tracking", std::ios::out | std::ios::app);
+      fs << line << "\n";
+      fs.close();
+    }
+#endif
   } else if (tokens[1] == "release_train") {
     std::string train_id = tokens[3];
     output_type = SIMPLE;
     success = train_sys_->release_train(train_id);
+#ifdef DEBUG_TRACKING
+    if (success) {
+      std::fstream fs;
+      fs.open("../tracking", std::ios::out | std::ios::app);
+      fs << line << "\n";
+      fs.close();
+    }
+#endif
   } else if (tokens[1] == "query_train") {
     std::string train_id;
     Date date;
@@ -243,7 +280,14 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = F_SIMPLE;
     success = train_sys_->buy_ticket(time_stamp, user_name, train_id, date, num, station1, station2, wait);
-
+#ifdef DEBUG_TRACKING
+    if (success) {
+      std::fstream fs;
+      fs.open("../tracking", std::ios::out | std::ios::app);
+      fs << line << "\n";
+      fs.close();
+    }
+#endif
   } else if (tokens[1] == "query_order") {
     std::string user_name = tokens[3];
     output_type = F_SIMPLE;
@@ -262,6 +306,14 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = SIMPLE;
     success = train_sys_->refund_ticket(user_name, n);
+#ifdef DEBUG_TRACKING
+    if (success) {
+      std::fstream fs;
+      fs.open("../tracking", std::ios::out | std::ios::app);
+      fs << line << "\n";
+      fs.close();
+    }
+#endif
   } else if (tokens[1] == "clean") {
     output_type = NORMAL;
     account_sys_->clear();
@@ -271,6 +323,12 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     std::cout << "bye\n";
     return false;
   }
+#ifdef DEBUG_FILE_IN_TMP
+  else if (tokens[1] == "print_queue") {
+    train_sys_->print_queue();
+    return true;
+  }
+#endif
   if (output_type == SIMPLE) {
     std::cout << (success ? "0\n" : "-1\n");
   } else if (output_type == F_SIMPLE) {

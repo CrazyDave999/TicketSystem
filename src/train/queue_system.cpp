@@ -16,7 +16,8 @@ QueueSystem::QueueSystem() {
 }
 QueueSystem::~QueueSystem() {
   queue_storage.seekp(0);
-  queue_storage.write(queue.size());
+  int size=(int)queue.size();
+  queue_storage.write(size);
   for (auto &query : queue) {
     queue_storage.write(query);
   }

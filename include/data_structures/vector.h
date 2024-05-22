@@ -26,7 +26,7 @@ class vector {
     if (len <= 1) {
       return;
     }
-    T &pi = arr[rand() % len];
+    T pi = arr[rand() % len];
     int i = 0, j = 0, k = len;
     while (i < k) {
       if (cmp(arr[i], pi))
