@@ -23,7 +23,7 @@ class Train {
   int station_num_{};
   String<41> stations_[100];  // [station]
   int seat_num_{};
-  int left_seat_num_[100][100]{};   // [station][date] date 是从始发站出发的日期 index
+  int left_seat_num_[100][93]{};   // [station][date] date 是从始发站出发的日期 index
   int prices_[100]{};               // [station]
   DateTimeRange time_ranges_[100];  // [station], {arrival time, leaving time},
                                     // record the offset time from the start_time

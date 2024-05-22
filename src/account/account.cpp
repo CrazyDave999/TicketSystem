@@ -16,7 +16,8 @@ auto AccountSystem::add_user(const std::optional<std::string> &cur_user_name, co
     if (it == login_list_.end()) {
       return false;
     }
-    auto &cur_user = account_storage_.find(cur_user_name.value())[0];
+    auto user_vec = account_storage_.find(cur_user_name.value());
+    auto &cur_user = user_vec[0];
     if (cur_user.privilege_ <= privilege) {
       return false;
     }

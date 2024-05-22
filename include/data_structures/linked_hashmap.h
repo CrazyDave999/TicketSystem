@@ -181,7 +181,7 @@ class linked_hashmap {
     head->next = tail;
     tail->prev = head;
     currentSize = 0;
-    capacity = 1e5 + 17;
+    capacity = 1e4 + 17;
     array = new node *[capacity];
     for (int i = 0; i < capacity; ++i) {
       array[i] = nullptr;

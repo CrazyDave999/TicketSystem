@@ -21,7 +21,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     std::optional<std::string> cur_user_name;
     std::optional<int> privilege;
     std::string user_name, password, name, mail_addr;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-c") {
@@ -40,15 +40,9 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = SIMPLE;
     success = account_sys_->add_user(cur_user_name, user_name, password, name, mail_addr, privilege);
-    if (success) {
-      std::fstream fs;
-      fs.open("../tracking", std::ios::out | std::ios::app);
-      fs << line << "\n";
-      fs.close();
-    }
   } else if (tokens[1] == "login") {
     std::string user_name, password;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-u") {
@@ -59,21 +53,13 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = SIMPLE;
     success = account_sys_->login(user_name, password);
-#ifdef DEBUG_TRACKING
-    if (success) {
-      std::fstream fs;
-      fs.open("../tracking", std::ios::out | std::ios::app);
-      fs << line << "\n";
-      fs.close();
-    }
-#endif
   } else if (tokens[1] == "logout") {
     std::string user_name = tokens[3];
     output_type = SIMPLE;
     success = account_sys_->logout(user_name);
   } else if (tokens[1] == "query_profile") {
     std::string cur_user_name, user_name;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-c") {
@@ -88,7 +74,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     std::string cur_user_name, user_name;
     std::optional<std::string> password, name, mail_addr;
     std::optional<int> privilege;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-c") {
@@ -109,14 +95,14 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     success = account_sys_->modify_profile(cur_user_name, user_name, password, name, mail_addr, privilege);
   } else if (tokens[1] == "add_train") {
     std::string train_id;
-    int seat_num;
+    int seat_num{};
     vector<std::string> stations;
     vector<int> prices;
     Time start_time;
     vector<int> travel_times, stopover_times;
     DateRange sale_date;
-    char type;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    char type{};
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-i") {
@@ -154,42 +140,18 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     output_type = SIMPLE;
     success = train_sys_->add_train(train_id, seat_num, stations, prices, start_time, travel_times, stopover_times,
                                     sale_date, type);
-#ifdef DEBUG_TRACKING
-    if (success) {
-      std::fstream fs;
-      fs.open("../tracking", std::ios::out | std::ios::app);
-      fs << line << "\n";
-      fs.close();
-    }
-#endif
   } else if (tokens[1] == "delete_train") {
     std::string train_id = tokens[3];
     output_type = SIMPLE;
     success = train_sys_->delete_train(train_id);
-#ifdef DEBUG_TRACKING
-    if (success) {
-      std::fstream fs;
-      fs.open("../tracking", std::ios::out | std::ios::app);
-      fs << line << "\n";
-      fs.close();
-    }
-#endif
   } else if (tokens[1] == "release_train") {
     std::string train_id = tokens[3];
     output_type = SIMPLE;
     success = train_sys_->release_train(train_id);
-#ifdef DEBUG_TRACKING
-    if (success) {
-      std::fstream fs;
-      fs.open("../tracking", std::ios::out | std::ios::app);
-      fs << line << "\n";
-      fs.close();
-    }
-#endif
   } else if (tokens[1] == "query_train") {
     std::string train_id;
     Date date;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-i") {
@@ -204,7 +166,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     std::string station1, station2;
     Date date;
     QueryType type = QueryType::TIME;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-s") {
@@ -227,7 +189,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     std::string station1, station2;
     Date date;
     QueryType type = QueryType::TIME;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-s") {
@@ -253,9 +215,9 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     int time_stamp = std::stoi(tokens[0].substr(1, tokens[0].size() - 2));
     std::string user_name, train_id, station1, station2;
     Date date;
-    int num;
+    int num{};
     bool wait = false;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-u") {
@@ -271,31 +233,19 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
       } else if (key == "-t") {
         station2 = value;
       } else if (key == "-q") {
-        if (value == "true") {
-          wait = true;
-        } else {
-          wait = false;
-        }
+        wait = value == "true";
       }
     }
     output_type = F_SIMPLE;
     success = train_sys_->buy_ticket(time_stamp, user_name, train_id, date, num, station1, station2, wait);
-#ifdef DEBUG_TRACKING
-    if (success) {
-      std::fstream fs;
-      fs.open("../tracking", std::ios::out | std::ios::app);
-      fs << line << "\n";
-      fs.close();
-    }
-#endif
   } else if (tokens[1] == "query_order") {
     std::string user_name = tokens[3];
     output_type = F_SIMPLE;
     success = train_sys_->query_order(user_name);
   } else if (tokens[1] == "refund_ticket") {
     std::string user_name;
-    int n;
-    for (int i = 2; i < tokens.size(); i += 2) {
+    int n{};
+    for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-u") {
@@ -306,14 +256,6 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = SIMPLE;
     success = train_sys_->refund_ticket(user_name, n);
-#ifdef DEBUG_TRACKING
-    if (success) {
-      std::fstream fs;
-      fs.open("../tracking", std::ios::out | std::ios::app);
-      fs << line << "\n";
-      fs.close();
-    }
-#endif
   } else if (tokens[1] == "clean") {
     output_type = NORMAL;
     account_sys_->clear();

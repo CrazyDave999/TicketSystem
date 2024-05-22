@@ -97,7 +97,19 @@ auto TrainSystem::query_train(const std::string &train_id, const Date &date) -> 
   if (train.sale_date_range_.first > date || train.sale_date_range_.second < date) {
     return false;
   }
-  std::cout << train.to_string(date);
+
+  DateTimeRange start_time{{date, {}}, {date, {}}};
+  int j = date - train.sale_date_range_.first;
+  std::cout << train.train_id_ << " " << train.type_ << "\n";
+  for (int i = 0; i < train.station_num_; ++i) {
+    std::cout << train.stations_[i] << " " << start_time + train.time_ranges_[i] << " " << train.prices_[i] << " ";
+    if (i < train.station_num_ - 1) {
+      std::cout << train.left_seat_num_[i][j];
+    } else {
+      std::cout << "x";
+    }
+    std::cout << "\n";
+  }
   return true;
 }
 void TrainSystem::query_ticket(const std::string &station_1, const std::string &station_2, const Date &date,
@@ -226,60 +238,23 @@ auto TrainSystem::query_transfer(const std::string &station_1, const std::string
     auto depart_date_1 = date - offset_1;                     // train_1发车日期
     int j1 = depart_date_1 - train_1.sale_date_range_.first;  // date index
     if (train_1.sale_date_range_.first > depart_date_1 || train_1.sale_date_range_.second < depart_date_1) {
-#ifdef DEBUG_QUERY_TRANSFER
-      if (DEBUG_output_flag) {
-        for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-        std::cout << "Train " << train_1.train_id_ << "is not suitable. Because date, aka. " << date
-                  << " is not in sale_date_range, aka. " << train_1.sale_date_range_.first << " , "
-                  << train_1.sale_date_range_.second << "\n";
-      }
-#endif
       continue;
     }
     int min_num_1 = train_1.seat_num_;
-#ifdef DEBUG_QUERY_TRANSFER
-    if (DEBUG_output_flag) {
-      for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-      std::cout << "For each station that after station_1:\n";
-      ++DEBUG_indent;
-    }
-#endif
+
     for (int i = i1 + 1; i < train_1.station_num_; ++i) {
       min_num_1 = std::min(min_num_1, train_1.left_seat_num_[i - 1][j1]);
       auto &station_3 = train_1.stations_[i];
-#ifdef DEBUG_QUERY_TRANSFER
-      if (DEBUG_output_flag) {
-        for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-        std::cout << "Current station:" << station_3 << "\n";
-      }
-#endif
+
       auto record_vec_3 = station_storage_.find(station_3);
-#ifdef DEBUG_QUERY_TRANSFER
-      if (DEBUG_output_flag) {
-        for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-        std::cout << "For each train that passed station_3:\n";
-        ++DEBUG_indent;
-      }
-#endif
       for (auto &rec_3 : record_vec_3) {
         auto it = rec_map.find(rec_3.train_id_);
         if (it == rec_map.end() || rec_3.train_id_ == rec_1.train_id_) {
-#ifdef DEBUG_QUERY_TRANSFER
-          if (DEBUG_output_flag) {
-            for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-            std::cout << "Train " << rec_3.train_id_ << "is not suitable. Because it cannot reach station_2\n";
-          }
-#endif
           continue;
         }
-        auto train_2 = train_storage_.find(rec_3.train_id_)[0];
+        auto train_vec_2 = train_storage_.find(rec_3.train_id_);
+        auto &train_2 = train_vec_2[0];
         if (!train_2.is_released_) {
-#ifdef DEBUG_QUERY_TRANSFER
-          if (DEBUG_output_flag) {
-            for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-            std::cout << "Train " << train_2.train_id_ << "is not suitable. Because it is not released\n";
-          }
-#endif
           continue;
         }
         int i3 = rec_3.index;  // station index of train_2
@@ -296,24 +271,10 @@ auto TrainSystem::query_transfer(const std::string &station_1, const std::string
 
         int j2 = depart_date_2 - train_2.sale_date_range_.first;  // date index
         if (train_2.sale_date_range_.second < depart_date_2) {
-#ifdef DEBUG_QUERY_TRANSFER
-          if (DEBUG_output_flag) {
-            for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-            std::cout << "Train " << train_2.train_id_ << "is not suitable. Because date, aka. " << date
-                      << " is not in sale_date_range, aka. " << train_2.sale_date_range_.first << " , "
-                      << train_2.sale_date_range_.second << "\n";
-          }
-#endif
           continue;
         }
         int i2 = it->second;
         if (i3 >= i2) {
-#ifdef DEBUG_QUERY_TRANSFER
-          if (DEBUG_output_flag) {
-            for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-            std::cout << "Train " << train_2.train_id_ << "is not suitable. Because it goes the reversed direction\n";
-          }
-#endif
           continue;
         }
         int min_num_2 = train_2.seat_num_;
@@ -380,34 +341,8 @@ auto TrainSystem::query_transfer(const std::string &station_1, const std::string
           }
         }
       }
-#ifdef DEBUG_QUERY_TRANSFER
-      if (DEBUG_output_flag) {
-        for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-        std::cout << "End for\n";
-        --DEBUG_indent;
-      }
-#endif
     }
-#ifdef DEBUG_QUERY_TRANSFER
-    if (DEBUG_output_flag) {
-      for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-      std::cout << "End for\n";
-      --DEBUG_indent;
-    }
-#endif
   }
-#ifdef DEBUG_QUERY_TRANSFER
-  if (DEBUG_output_flag) {
-    for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-    std::cout << "End for\n";
-    --DEBUG_indent;
-  }
-#endif
-#ifdef DEBUG_QUERY_TRANSFER
-  if (DEBUG_output_flag) {
-    std::cout << "Debug end\n";
-  }
-#endif
   if (success) {
     std::cout << res;
     return true;
@@ -420,18 +355,12 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   if (!m_sys_->check_is_login(user_name)) {
     return false;
   }
-  auto train = train_storage_.find(train_id)[0];
+  auto train_vec = train_storage_.find(train_id);
+  auto &train = train_vec[0];
   if (!train.is_released_) {
     return false;
   }
 
-#ifdef DEBUG_BUY_TICKET
-  bool DEBUG_output_flag = false;
-  if (user_name == "Indra" && station_1 == "宁夏石嘴山市" && station_2 == "浙江省慈溪市") {
-    DEBUG_output_flag = true;
-    std::cout << "Debug begin buy_ticket\n";
-  }
-#endif
   int i1 = -1, i2 = -1, j;
   int min_num = train.seat_num_;
   Date depart_date;
@@ -453,11 +382,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
       min_num = std::min(min_num, train.left_seat_num_[i][j]);
     }
   }
-#ifdef DEBUG_BUY_TICKET
-  if (DEBUG_output_flag) {
-    std::cout << "Train condition:\n" << train.to_string(date);
-  }
-#endif
+
   if (i1 == -1 || i2 == -1) {
     return false;
   }
@@ -493,15 +418,16 @@ auto TrainSystem::refund_ticket(const std::string &user_name, int n) -> bool {
     return false;
   }
   auto trade_vec = trade_storage_.find(user_name);
-  if (n > trade_vec.size()) {
+  if (n > (int)trade_vec.size()) {
     return false;
   }
-  auto trade = trade_vec[n - 1];
+  auto &trade = trade_vec[n - 1];
   if (trade.status_ == Status::REFUNDED) {
     return false;
   }
   if (trade.status_ == Status::SUCCESS) {
-    auto train = train_storage_.find(trade.train_id_)[0];
+    auto train_vec = train_storage_.find(trade.train_id_);
+    auto &train = train_vec[0];
     // 还原座位数量
     auto depart_date = trade.leaving_time_.date - train.time_ranges_[trade.station_index_1_].second.date.day_;
     int j = depart_date - train.sale_date_range_.first;
@@ -513,7 +439,7 @@ auto TrainSystem::refund_ticket(const std::string &user_name, int n) -> bool {
     check_queue(trade.train_id_, trade.station_index_1_, trade.station_index_2_, j);
   } else {
     for (auto it = q_sys_.begin(); it != q_sys_.end(); ++it) {
-      if (it->user_name_ == user_name && trade_vec.size() - it->trade_index_ == n) {
+      if (it->user_name_ == user_name && (int)(trade_vec.size() - it->trade_index_) == n) {
         q_sys_.erase(it);
         break;
       }
@@ -527,22 +453,23 @@ auto TrainSystem::refund_ticket(const std::string &user_name, int n) -> bool {
 void TrainSystem::check_queue(const std::string &train_id, int station_index_1, int station_index_2, int date_index) {
   auto it = q_sys_.begin();
   while (it != q_sys_.end()) {
-    auto query = *it;
-    if (query.train_id_ != train_id || query.date_index_ != date_index || query.station_index_2_ < station_index_1 ||
-        query.station_index_1_ > station_index_2) {
+    if (it->train_id_ != train_id || it->date_index_ != date_index || it->station_index_2_ < station_index_1 ||
+        it->station_index_1_ > station_index_2) {
       ++it;
       continue;
     }
-    auto train = train_storage_.find(train_id)[0];
+    auto train_vec = train_storage_.find(train_id);
+    auto &train = train_vec[0];
     int min_num = train.seat_num_;
-    for (int i = query.station_index_1_; i < query.station_index_2_; ++i) {
+    for (int i = it->station_index_1_; i < it->station_index_2_; ++i) {
       min_num = std::min(min_num, train.left_seat_num_[i][date_index]);
     }
-    if (min_num < query.num_) {
+    if (min_num < it->num_) {
       ++it;
       continue;
     }
     // 补票成功
+    auto query = *it;
     q_sys_.erase(it++);
     train_storage_.remove(train_id, train);
     for (int i = query.station_index_1_; i < query.station_index_2_; ++i) {

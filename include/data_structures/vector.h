@@ -15,7 +15,7 @@ class vector {
   void double_space() {
     T *tmp = data;
     data = alloc.allocate(capacity * 2);
-    for (int i = 0; i < currentSize; ++i) {
+    for (int i = 0; i < (int)currentSize; ++i) {
       std::construct_at(data + i, tmp[i]);
       (tmp + i)->~T();
     }
@@ -121,27 +121,27 @@ class vector {
     currentSize = other.currentSize;
     capacity = other.capacity;
     data = alloc.allocate(capacity);
-    for (int i = 0; i < currentSize; ++i) {
+    for (int i = 0; i < (int)currentSize; ++i) {
       std::construct_at(data + i, other.data[i]);
     }
   }
 
   ~vector() {
-    for (int i = 0; i < currentSize; ++i) {
+    for (int i = 0; i < (int)currentSize; ++i) {
       (data + i)->~T();
     }
     alloc.deallocate(data, capacity);
   }
   vector &operator=(const vector &other) {
     if (&other == this) return *this;
-    for (int i = 0; i < currentSize; ++i) {
+    for (int i = 0; i < (int)currentSize; ++i) {
       (data + i)->~T();
     }
     alloc.deallocate(data, capacity);
     currentSize = other.currentSize;
     capacity = other.capacity;
     data = alloc.allocate(capacity);
-    for (int i = 0; i < currentSize; ++i) {
+    for (int i = 0; i < (int)currentSize; ++i) {
       std::construct_at(data + i, other.data[i]);
     }
 
@@ -172,7 +172,7 @@ class vector {
   [[nodiscard]] bool empty() const { return currentSize == 0; }
   [[nodiscard]] size_t size() const { return currentSize; }
   void clear() {
-    for (int i = 0; i < capacity; ++i) {
+    for (int i = 0; i < (int)capacity; ++i) {
       (data + i)->~T();
     }
     alloc.deallocate(data, capacity);
