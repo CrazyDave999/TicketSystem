@@ -122,8 +122,7 @@ void TrainSystem::query_ticket(const std::string &station_1, const std::string &
     rec_map.insert({rec.train_id_, rec.index});
   }
   for (auto &rec : record_vec_1) {
-    auto train_vec= train_storage_.find(rec.train_id_);
-    auto &train = train_vec[0];
+    auto train = train_storage_.find(rec.train_id_)[0];
     int i1 = rec.index;  // station index
     if (i1 == train.station_num_ - 1 || !train.is_released_) {
       continue;
@@ -191,8 +190,7 @@ auto TrainSystem::query_transfer(const std::string &station_1, const std::string
   }
 
   for (auto &rec_1 : record_vec_1) {
-    auto train_vec_1= train_storage_.find(rec_1.train_id_);
-    auto &train_1 = train_vec_1[0];
+    auto train_1 = train_storage_.find(rec_1.train_id_)[0];
     if (!train_1.is_released_) {
       continue;
     }
@@ -215,8 +213,7 @@ auto TrainSystem::query_transfer(const std::string &station_1, const std::string
         if (it == rec_map.end() || rec_3.train_id_ == rec_1.train_id_) {
           continue;
         }
-        auto train_vec_2 = train_storage_.find(rec_3.train_id_);
-        auto &train_2 = train_vec_2[0];
+        auto train_2 = train_storage_.find(rec_3.train_id_)[0];
         if (!train_2.is_released_) {
           continue;
         }
@@ -318,8 +315,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   if (!m_sys_->check_is_login(user_name)) {
     return false;
   }
-  auto train_vec = train_storage_.find(train_id);
-  auto &train = train_vec[0];
+  auto train = train_storage_.find(train_id)[0];
   if (!train.is_released_) {
     return false;
   }
@@ -389,8 +385,7 @@ auto TrainSystem::refund_ticket(const std::string &user_name, int n) -> bool {
     return false;
   }
   if (trade.status_ == Status::SUCCESS) {
-    auto train_vec = train_storage_.find(trade.train_id_);
-    auto &train = train_vec[0];
+    auto train = train_storage_.find(trade.train_id_)[0];
     // 还原座位数量
     auto depart_date = trade.leaving_time_.date - train.time_ranges_[trade.station_index_1_].second.date.day_;
     int j = depart_date - train.sale_date_range_.first;
@@ -421,8 +416,7 @@ void TrainSystem::check_queue(const std::string &train_id, int station_index_1, 
       ++it;
       continue;
     }
-    auto train_vec = train_storage_.find(train_id);
-    auto &train = train_vec[0];
+    auto train = train_storage_.find(train_id)[0];
     int min_num = train.seat_num_;
     for (int i = it->station_index_1_; i < it->station_index_2_; ++i) {
       min_num = std::min(min_num, train.left_seat_num_[i][date_index]);
