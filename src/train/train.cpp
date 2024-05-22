@@ -122,7 +122,8 @@ void TrainSystem::query_ticket(const std::string &station_1, const std::string &
     rec_map.insert({rec.train_id_, rec.index});
   }
   for (auto &rec : record_vec_1) {
-    auto train = train_storage_.find(rec.train_id_)[0];
+    auto train_vec= train_storage_.find(rec.train_id_);
+    auto &train = train_vec[0];
     int i1 = rec.index;  // station index
     if (i1 == train.station_num_ - 1 || !train.is_released_) {
       continue;
@@ -178,59 +179,21 @@ void TrainSystem::query_ticket(const std::string &station_1, const std::string &
 }
 auto TrainSystem::query_transfer(const std::string &station_1, const std::string &station_2, const Date &date,
                                  const QueryType &type) -> bool {
-#ifdef DEBUG_QUERY_TRANSFER
-  bool DEBUG_output_flag = false;
-  int DEBUG_indent = 0;
-  if (station_1 == "广东省惠阳市" && station_2 == "江苏省高邮市") {
-    DEBUG_output_flag = true;
-    std::cout << "Debug begin: query_transfer\n";
-  }
-#endif
 
   bool success = false;
   TransferResult res;
   auto record_vec_1 = station_storage_.find(station_1);
   auto record_vec_2 = station_storage_.find(station_2);
 
-#ifdef DEBUG_QUERY_TRANSFER
-  if (DEBUG_output_flag) {
-    std::cout << "Trains pass station_1, aka. " << station_1 << " :\n";
-    for (auto &rec : record_vec_1) {
-      std::cout << rec.train_id_ << " " << rec.index << "\n";
-    }
-    std::cout << "Trains pass station_2, aka. " << station_2 << " :\n";
-    for (auto &rec : record_vec_2) {
-      std::cout << rec.train_id_ << " " << rec.index << "\n";
-    }
-  }
-#endif
-
   linked_hashmap<std::string, int> rec_map;
   for (auto &rec : record_vec_2) {
     rec_map.insert({rec.train_id_, rec.index});
   }
 
-#ifdef DEBUG_QUERY_TRANSFER
-  if (DEBUG_output_flag) {
-    std::cout << "For each train that passes station_1:\n";
-    ++DEBUG_indent;
-  }
-#endif
   for (auto &rec_1 : record_vec_1) {
-    auto train_1 = train_storage_.find(rec_1.train_id_)[0];
-#ifdef DEBUG_QUERY_TRANSFER
-    if (DEBUG_output_flag) {
-      for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-      std::cout << "Current train:" << train_1.train_id_ << "\n";
-    }
-#endif
+    auto train_vec_1= train_storage_.find(rec_1.train_id_);
+    auto &train_1 = train_vec_1[0];
     if (!train_1.is_released_) {
-#ifdef DEBUG_QUERY_TRANSFER
-      if (DEBUG_output_flag) {
-        for (int di = 0; di < DEBUG_indent; ++di) std::cout << " ";
-        std::cout << "Train " << train_1.train_id_ << "is not suitable. Because it is not released.\n";
-      }
-#endif
       continue;
     }
     int i1 = rec_1.index;  // station index
