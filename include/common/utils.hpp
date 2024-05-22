@@ -229,10 +229,6 @@ class File {
   void write(const T &src, size_t size = sizeof(T)) {
     fs.write(reinterpret_cast<const char *>(&src), (long)size);
   }
-  template <class T>
-  void write(T &&src, size_t size = sizeof(T)) {
-    fs.write(reinterpret_cast<const char *>(&src), (long)size);
-  }
 
   void seekg(int pos) { fs.seekg(pos); }
 

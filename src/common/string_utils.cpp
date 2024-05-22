@@ -104,32 +104,6 @@ auto StringUtil::Lower(const std::string &str) -> std::string {
   return (copy);
 }
 
-// NOLINTNEXTLINE - it wants us to take fmt_str as const&, but we shouldn't do that since we use it in va_args.
-std::string StringUtil::Format(std::string fmt_str, ...) {
-  // http://stackoverflow.com/a/8098080
-  // Reserve two times as much as the length of the format string.
-  int final_n;
-  int n = (static_cast<int>(fmt_str.size())) * 2;
-  std::string str;
-  std::unique_ptr<char[]> formatted;
-  va_list ap;
-
-  while (true) {
-    // Wrap the plain char array into the unique_ptr.
-    formatted = std::make_unique<char[]>(n);
-    strcpy(&formatted[0], fmt_str.c_str());  // NOLINT
-    va_start(ap, fmt_str);
-    final_n = vsnprintf(&formatted[0], static_cast<size_t>(n), fmt_str.c_str(), ap);
-    va_end(ap);
-    if (final_n < 0 || final_n >= n) {
-      n += abs(final_n - n + 1);
-    } else {
-      break;
-    }
-  }
-  return {formatted.get()};
-}
-
 auto StringUtil::Split(const std::string &input, const std::string &split) -> vector<std::string> {
   vector<std::string> splits;
 

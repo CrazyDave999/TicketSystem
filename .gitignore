@@ -1,9 +1,13 @@
 cmake-build-debug/
 test/testcases/
-.gitignore
 .clang-format
 .clang-tidy
 .idea/
 test/run-test
 test/code
 test/
+input
+output.txt
+tracking
+test.in
+test.out

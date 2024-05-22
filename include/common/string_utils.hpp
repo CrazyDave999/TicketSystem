@@ -63,9 +63,6 @@ class StringUtil {
   /** @return lowercase version of the string */
   static auto Lower(const std::string &str) -> std::string;
 
-  /** @return string formatted with printf semantics */
-  static auto Format(std::string fmt_str, ...) -> std::string;
-
   /** @return input string split based on the split string */
   static auto Split(const std::string &input, const std::string &split) -> vector<std::string>;
 
