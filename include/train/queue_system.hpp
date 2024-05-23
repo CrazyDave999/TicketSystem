@@ -5,28 +5,28 @@
 namespace CrazyDave {
 class QueueSystem {
   struct Query {
-    String<20> user_name_{};
-    String<20> train_id_{};
+    size_t user_hs_{};
+    size_t train_hs_{};
     int station_index_1_{};
     int station_index_2_{};
     int date_index_{};
     int num_{};
     int trade_index_{};
     Query() = default;
-    Query(const std::string &user_name, const std::string &train_id, int station_index_1, int station_index_2,
+    Query(size_t user_hs, size_t train_hs, int station_index_1, int station_index_2,
           int date_index, int num, int trade_index)
-        : user_name_{user_name},
-          train_id_{train_id},
+        : user_hs_(user_hs),
+          train_hs_{train_hs},
           station_index_1_{station_index_1},
           station_index_2_{station_index_2},
           date_index_{date_index},
           num_{num},
           trade_index_{trade_index} {}
-    friend std::ostream &operator<<(std::ostream &os, const Query &query) {
-      os << query.user_name_ << ' ' << query.train_id_ << ' ' << query.station_index_1_ << ' '
-         << query.station_index_2_ << ' ' << query.date_index_ << ' ' << query.num_ << ' ' << query.trade_index_ <<"\n";
-      return os;
-    }
+//    friend std::ostream &operator<<(std::ostream &os, const Query &query) {
+//      os << query.user_name_ << ' ' << query.train_id_ << ' ' << query.station_index_1_ << ' '
+//         << query.station_index_2_ << ' ' << query.date_index_ << ' ' << query.num_ << ' ' << query.trade_index_ <<"\n";
+//      return os;
+//    }
   };
 
  private:

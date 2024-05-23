@@ -405,7 +405,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
     if (wait) {
       vector<Trade> trade_vec;
       trade_storage_.find(user_hs, trade_vec);
-      q_sys_.push({user_name, train_id, i1, i2, j, num, (int)trade_vec.size()});
+      q_sys_.push({user_hs, train_hs, i1, i2, j, num, (int)trade_vec.size()});
       trade_storage_.insert(user_hs, Trade{time_stamp, Status::PENDING, train_id,
                                            DateTime{depart_date, {}} + train.time_ranges_[i1].second,
                                            DateTime{depart_date, {}} + train.time_ranges_[i2].first, station_1, i1,
@@ -444,10 +444,10 @@ auto TrainSystem::refund_ticket(const std::string &user_name, int n) -> bool {
       seat_num[i][trade.date_index_] += trade.num_;
     }
     seat_storage_.insert(train_hs, seat_vec[0]);
-    check_queue(trade.train_id_, trade.station_index_1_, trade.station_index_2_, trade.date_index_);
+    check_queue(train_hs, trade.station_index_1_, trade.station_index_2_, trade.date_index_);
   } else {
     for (auto it = q_sys_.begin(); it != q_sys_.end(); ++it) {
-      if (it->user_name_ == user_name && (int)(trade_vec.size() - it->trade_index_) == n) {
+      if (it->user_hs_ == user_hs && (int)(trade_vec.size() - it->trade_index_) == n) {
         q_sys_.erase(it);
         break;
       }
@@ -458,15 +458,14 @@ auto TrainSystem::refund_ticket(const std::string &user_name, int n) -> bool {
   trade_storage_.insert(user_hs, trade);
   return true;
 }
-void TrainSystem::check_queue(const std::string &train_id, int station_index_1, int station_index_2, int date_index) {
+void TrainSystem::check_queue(size_t train_hs, int station_index_1, int station_index_2, int date_index) {
   auto it = q_sys_.begin();
   while (it != q_sys_.end()) {
-    if (it->train_id_ != train_id || it->date_index_ != date_index || it->station_index_2_ < station_index_1 ||
+    if (it->train_hs_ != train_hs || it->date_index_ != date_index || it->station_index_2_ < station_index_1 ||
         it->station_index_1_ > station_index_2) {
       ++it;
       continue;
     }
-    auto train_hs = HashBytes(train_id.c_str());
 
     vector<Seat> seat_vec;
     seat_storage_.find(train_hs, seat_vec);
@@ -488,13 +487,12 @@ void TrainSystem::check_queue(const std::string &train_id, int station_index_1, 
       seat_num[i][date_index] -= query.num_;
     }
     seat_storage_.insert(train_hs, seat_vec[0]);
-    auto user_hs = HashBytes(query.user_name_.c_str());
     vector<Trade> trade_vec;
-    trade_storage_.find(user_hs, trade_vec);
+    trade_storage_.find(query.user_hs_, trade_vec);
     auto &trade = trade_vec[trade_vec.size() - 1 - query.trade_index_];
-    trade_storage_.remove(user_hs, trade);
+    trade_storage_.remove(query.user_hs_, trade);
     trade.status_ = Status::SUCCESS;
-    trade_storage_.insert(user_hs, trade);
+    trade_storage_.insert(query.user_hs_, trade);
   }
 }
 auto TrainSystem::query_order(const std::string &user_name) -> bool {
@@ -517,6 +515,5 @@ void TrainSystem::clear() {
   q_sys_.reset();
 }
 void TrainSystem::load_management_system(ManagementSystem *m_sys) { m_sys_ = m_sys; }
-TrainSystem::~TrainSystem() { return; }
 
 }  // namespace CrazyDave

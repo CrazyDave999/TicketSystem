@@ -131,11 +131,10 @@ class TrainSystem {
   /*
    * 检查候补队列，将能够补票的所有订单补票
    */
-  void check_queue(const std::string &train_id, int station_index_1, int station_index_2, int date_index);
+  void check_queue(size_t train_hs, int station_index_1, int station_index_2, int date_index);
 
  public:
   TrainSystem() = default;
-  ~TrainSystem();
   explicit TrainSystem(ManagementSystem *m_sys);
   void load_management_system(ManagementSystem *m_sys);
   auto add_train(const std::string &train_id, int seat_num, const vector<std::string> &stations,
