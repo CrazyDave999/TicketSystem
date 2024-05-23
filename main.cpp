@@ -4,14 +4,13 @@
 CrazyDave::TrainSystem t_sys;
 CrazyDave::AccountSystem a_sys;
 CrazyDave::ManagementSystem m_sys{&a_sys, &t_sys};
-
 int main() {
   a_sys.load_management_system(&m_sys);
   t_sys.load_management_system(&m_sys);
   std::ios::sync_with_stdio(false);
 #ifdef DEBUG_FILE_IN_TMP
   //  system("rm -rf ./tmp/*");
-  std::freopen("../test/testcases/basic_3/4.in", "r", stdin);
+  std::freopen("../test/testcases/basic_4/10.in", "r", stdin);
   //  std::freopen("../tracking", "r", stdin);
   std::freopen("../output.txt", "w", stdout);
 #endif

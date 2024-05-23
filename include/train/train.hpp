@@ -19,15 +19,14 @@ class Train {
   friend TrainSystem;
 
  private:
-  String<20> train_id_;
+  String<20> train_id_{};
   int station_num_{};
-  String<40> stations_[100];  // [station]
+  String<40> stations_[100]{};  // [station]
   int seat_num_{};
-  int left_seat_num_[100][92]{};    // [station][date] date 是从始发站出发的日期 index
   int prices_[100]{};               // [station]
   DateTimeRange time_ranges_[100];  // [station], {arrival time, leaving time},
                                     // record the offset time from the start_time
-  DateRange sale_date_range_;
+  DateRange sale_date_range_{};
   char type_{};
   bool is_released_{};
 
@@ -38,6 +37,11 @@ class Train {
         DateRange sale_date, char type);
 
   auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
+};
+struct Seat {
+  size_t train_hs_{};
+  int seat_num_[100][92]{}; // [station][date] date 是从始发站出发的日期 index
+  bool operator<(const Seat &rhs) const { return train_hs_ < rhs.train_hs_;}
 };
 class TrainSystem {
   struct Record {
@@ -57,12 +61,13 @@ class TrainSystem {
     int station_index_2_{};
     int price_{};
     int num_{};
+    int date_index_{};
 
    public:
     Trade() = default;
     Trade(int time_stamp, const Status &status, const String<20> &train_id, const DateTime &leaving_time,
           const DateTime &arrival_time, const String<40> &station_1, int station_index_1, const String<40> &station_2,
-          int station_index_2, int price, int num)
+          int station_index_2, int price, int num,int date_index)
         : time_stamp_(time_stamp),
           status_(status),
           train_id_(train_id),
@@ -73,7 +78,7 @@ class TrainSystem {
           station_index_1_(station_index_1),
           station_index_2_(station_index_2),
           price_(price),
-          num_(num) {}
+          num_(num),date_index_(date_index) {}
     friend std::ostream &operator<<(std::ostream &os, const Trade &trade) {
       switch (trade.status_) {
         case Status::SUCCESS:
@@ -94,26 +99,19 @@ class TrainSystem {
   };
 
   struct TicketResult {
-    std::string train_id;
-    StationDateTimeRange range;
+    String<20> train_id{};
+    DateTimeRange range{};
 
     int price;
     int max_num;
-    [[nodiscard]] auto total_time() const -> int { return range.second.date_time - range.first.date_time; }
-    friend auto operator<<(std::ostream &os, const TicketResult &res) -> std::ostream & {
-      os << res.train_id << " " << res.range << " " << res.price << " " << res.max_num << "\n";
-      return os;
-    }
+    [[nodiscard]] auto total_time() const -> int { return range.second - range.first; }
   };
   struct TransferResult {
-    TicketResult res_1;
-    TicketResult res_2;
-    [[nodiscard]] auto total_time() const -> int { return res_2.range.second.date_time - res_1.range.first.date_time; }
+    TicketResult res_1{};
+    TicketResult res_2{};
+    String<40> mid_station{};
+    [[nodiscard]] auto total_time() const -> int { return res_2.range.second - res_1.range.first; }
     [[nodiscard]] auto total_price() const -> int { return res_1.price + res_2.price; }
-    friend auto operator<<(std::ostream &os, const TransferResult &res) -> std::ostream & {
-      os << res.res_1 << res.res_2;
-      return os;
-    }
   };
 
  private:
@@ -125,6 +123,7 @@ class TrainSystem {
   BPlusTree<size_t, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
   BPlusTree<size_t, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
   BPlusTree<size_t, Record> station_storage_{"st1", "st2", "st3", "st4"};
+  BPlusTree<size_t, Seat> seat_storage_{"se1", "se2", "se3", "se4"};
 #endif
   QueueSystem q_sys_;
   ManagementSystem *m_sys_{};
@@ -136,8 +135,9 @@ class TrainSystem {
 
  public:
   TrainSystem() = default;
+  ~TrainSystem();
   explicit TrainSystem(ManagementSystem *m_sys);
-        void load_management_system(ManagementSystem *m_sys);
+  void load_management_system(ManagementSystem *m_sys);
   auto add_train(const std::string &train_id, int seat_num, const vector<std::string> &stations,
                  const vector<int> &prices, const Time &start_time, const vector<int> &travel_times,
                  const vector<int> &stop_over_times, const DateRange &sale_date, char type) -> bool;

@@ -2,8 +2,10 @@
 #define SJTU_VECTOR_HPP
 
 #include <memory>
-
 namespace CrazyDave {
+#ifdef USE_STL
+using std::vector;
+#else
 template <typename T>
 class vector {
  private:
@@ -224,5 +226,6 @@ class vector {
   }
   void sort(bool cmp(const T &, const T &)) { quick_sort(data, currentSize, cmp); }
 };
+#endif
 }  // namespace CrazyDave
 #endif  // SJTU_VECTOR_HPP

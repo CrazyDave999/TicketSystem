@@ -5,8 +5,8 @@
 namespace CrazyDave {
 class QueueSystem {
   struct Query {
-    String<21> user_name_{};
-    String<21> train_id_{};
+    String<20> user_name_{};
+    String<20> train_id_{};
     int station_index_1_{};
     int station_index_2_{};
     int date_index_{};

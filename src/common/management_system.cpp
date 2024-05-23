@@ -79,9 +79,9 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
-      if (key == "-c") {
+      if (key[1] == 'c') {
         cur_user_name = value;
-      } else if (key == "-u") {
+      } else if (key[1] == 'u') {
         user_name = value;
       } else if (key[1] == 'p') {
         password = value;

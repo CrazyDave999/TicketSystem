@@ -12,10 +12,10 @@ class Account {
   friend AccountSystem;
 
  private:
-  String<21> user_name_;
-  String<31> password_;
-  String<21> name_;
-  String<31> mail_addr_;
+  String<21> user_name_{};
+  String<31> password_{};
+  String<21> name_{};
+  String<31> mail_addr_{};
   int privilege_{};
 
  public:
@@ -43,8 +43,7 @@ class AccountSystem {
   bool is_new_{true};
 
  public:
-  AccountSystem()=default;
-  explicit AccountSystem(ManagementSystem *m_sys);
+  AccountSystem();
   void load_management_system(ManagementSystem *m_sys);
   ~AccountSystem();
   auto check_is_login(const std::string &user_name) -> bool;

@@ -126,7 +126,7 @@ auto AccountSystem::check_is_login(const std::string &user_name) -> bool {
   auto user_name_hs = HashBytes(user_name.c_str());
   return login_list_.find(user_name_hs) != login_list_.end();
 }
-AccountSystem::AccountSystem(ManagementSystem *m_sys) : m_sys_(m_sys) {
+AccountSystem::AccountSystem(){
   header_.open();
   if (header_.get_is_new()) {
     return;

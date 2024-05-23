@@ -6,7 +6,7 @@
 #include "data_structures/vector.h"
 
 namespace CrazyDave {
-template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 228>
+template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 54>
 class BPlusTree {
   struct Pair {
     key_t key{};
@@ -459,13 +459,11 @@ class BPlusTree {
   }
 
   void insert(const key_t &key, const value_t &val) {
-    Pair pr{key, val};
-    insert_at_node(root, pr);
+    insert_at_node(root, {key, val});
   }
 
   void remove(const key_t &key, const value_t &val) {
-    Pair pr{key, val};
-    remove_at_node(root, pr);
+    remove_at_node(root, {key, val});
   }
 
   void find(const key_t &key, vector<value_t> &res) { find_at_node(root, key, res); }
