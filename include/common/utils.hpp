@@ -254,7 +254,8 @@ struct Time {
   Time() = default;
   Time(int hour, int minute) : hour_(hour), minute_(minute) {}
   explicit Time(const std::string &str) {
-    auto vec = StringUtil::Split(str, ':');
+    vector<std::string> vec;
+    StringUtil::Split(str, ':', vec);
     hour_ = std::stoi(vec[0]);
     minute_ = std::stoi(vec[1]);
   }
@@ -322,7 +323,8 @@ struct Date {
   Date() = default;
   Date(int _month, int _day) : month_(_month), day_(_day) {}
   explicit Date(const std::string &str) {
-    auto vec = StringUtil::Split(str, '-');
+    vector<std::string> vec;
+    StringUtil::Split(str, '-', vec);
     month_ = std::stoi(vec[0]);
     day_ = std::stoi(vec[1]);
   }

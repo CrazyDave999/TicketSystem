@@ -135,7 +135,9 @@ class TrainSystem {
   void check_queue(const std::string &train_id, int station_index_1, int station_index_2, int date_index);
 
  public:
+  TrainSystem() = default;
   explicit TrainSystem(ManagementSystem *m_sys);
+        void load_management_system(ManagementSystem *m_sys);
   auto add_train(const std::string &train_id, int seat_num, const vector<std::string> &stations,
                  const vector<int> &prices, const Time &start_time, const vector<int> &travel_times,
                  const vector<int> &stop_over_times, const DateRange &sale_date, char type) -> bool;

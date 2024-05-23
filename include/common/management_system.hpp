@@ -13,12 +13,12 @@ class AccountSystem;
 class TrainSystem;
 class ManagementSystem {
  private:
-  AccountSystem *account_sys_{};
-  TrainSystem *train_sys_{};
+  AccountSystem *account_sys_;
+  TrainSystem *train_sys_;
   auto execute_line(const std::string &line) -> bool;
 
  public:
-  ManagementSystem();
+  ManagementSystem(AccountSystem *account_sys, TrainSystem *train_sys);
   ~ManagementSystem();
   void run();
   auto check_is_login(const std::string &username) -> bool;

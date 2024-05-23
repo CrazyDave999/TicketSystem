@@ -39,7 +39,7 @@ auto AccountSystem::login(const std::string &user_name, const std::string &passw
     return false;
   }
   vector<Account> user_vec;
-  account_storage_.find(user_hs,user_vec);
+  account_storage_.find(user_hs, user_vec);
   if (user_vec.empty() || user_vec[0].password_ != password) {
     return false;
   }
@@ -63,7 +63,7 @@ auto AccountSystem::query_profile(const std::string &cur_user_name, const std::s
   }
   auto user_hs = HashBytes(user_name.c_str());
   vector<Account> user_vec;
-  account_storage_.find(user_hs,user_vec);
+  account_storage_.find(user_hs, user_vec);
   if (user_vec.empty()) {
     return false;
   }
@@ -90,7 +90,7 @@ auto AccountSystem::modify_profile(const std::string &cur_user_name, const std::
   }
   auto user_hs = HashBytes(user_name.c_str());
   vector<Account> user_vec;
-  account_storage_.find(user_hs,user_vec);
+  account_storage_.find(user_hs, user_vec);
   if (user_vec.empty()) {
     return false;
   }
@@ -143,4 +143,5 @@ AccountSystem::~AccountSystem() {
   header_.write(is_new_);
   header_.close();
 }
+void AccountSystem::load_management_system(ManagementSystem *m_sys) { m_sys_ = m_sys; }
 }  // namespace CrazyDave

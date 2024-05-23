@@ -6,7 +6,7 @@
 #include "data_structures/vector.h"
 
 namespace CrazyDave {
-template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 54>
+template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 27>
 class BPlusTree {
   struct Pair {
     key_t key{};
@@ -32,10 +32,10 @@ class BPlusTree {
 
   struct WTreeNode {  // Writable struct for a TreeNode.
     int pos{};
-    int ch_num = 0;
-    int block_pos = 0;
-    int size = 0;
-    Pair keys[M];
+    int ch_num {0};
+    int block_pos{0};
+    int size{0};
+    Pair keys[M]{};
     int ch_pos[M + 1]{};  // The position of children's STreeNode in tree_file.
 
     WTreeNode() = default;
@@ -51,13 +51,13 @@ class BPlusTree {
   };
 
   struct TreeNode {
-    TreeNode *fa = nullptr;
-    int ch_num = 0;   // If ch_num=0, this node is a leaf.
+    TreeNode *fa {nullptr};
+    int ch_num{0};   // If ch_num=0, this node is a leaf.
     int pos{};        // The position of this node in tree_file.
     int block_pos{};  // The position of data in data_file. Only leaf node available.
-    int size = 0;     // Size of block. Only leaf node available.
-    Pair keys[M];     // At most M - 1 keys, leave one.
-    TreeNode *children[M + 1];
+    int size {0};     // Size of block. Only leaf node available.
+    Pair keys[M]{};     // At most M - 1 keys, leave one.
+    TreeNode *children[M + 1]{};
 
     TreeNode(TreeNode *_fa, int _ch_num, int _pos, int _block_pos = 0)
         : fa(_fa), ch_num(_ch_num), pos(_pos), block_pos(_block_pos) {}
@@ -126,10 +126,10 @@ class BPlusTree {
   File node_storage_file;  // Information of node_storage.
   File block_file;
   File block_storage_file;
-  TreeNode *root;
+  TreeNode *root{};
   using Block = Pair[L + 1];
-  Block cache1;
-  Block cache2;
+  Block cache1{};
+  Block cache2{};
   Storage node_storage{&node_storage_file};
   Storage block_storage{&block_storage_file};
 

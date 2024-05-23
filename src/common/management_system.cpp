@@ -13,11 +13,13 @@ void ManagementSystem::run() {
   }
 }
 auto ManagementSystem::execute_line(const std::string &line) -> bool {
-  auto tokens = StringUtil::Split(line, ' ');
+  vector<std::string> tokens;
+  StringUtil::Split(line, ' ', tokens);
   std::cout << tokens[0] << " ";
   enum OutputType { SIMPLE, F_SIMPLE, NORMAL } output_type = SIMPLE;
   bool success = false;
-  if (tokens[1] == "add_user") {
+  auto &command = tokens[1];
+  if (command == "add_user") {
     std::optional<std::string> cur_user_name;
     std::optional<int> privilege;
     std::string user_name, password, name, mail_addr;
@@ -28,11 +30,11 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
         cur_user_name = value;
       } else if (key == "-u") {
         user_name = value;
-      } else if (key == "-p") {
+      } else if (key[1] == 'p') {
         password = value;
-      } else if (key == "-n") {
+      } else if (key[1] == 'n') {
         name = value;
-      } else if (key == "-m") {
+      } else if (key[1] == 'm') {
         mail_addr = value;
       } else if (key == "-g") {
         privilege = std::stoi(value);
@@ -40,24 +42,24 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = SIMPLE;
     success = account_sys_->add_user(cur_user_name, user_name, password, name, mail_addr, privilege);
-  } else if (tokens[1] == "login") {
+  } else if (command == "login") {
     std::string user_name, password;
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
       if (key == "-u") {
         user_name = value;
-      } else if (key == "-p") {
+      } else if (key[1] == 'p') {
         password = value;
       }
     }
     output_type = SIMPLE;
     success = account_sys_->login(user_name, password);
-  } else if (tokens[1] == "logout") {
+  } else if (command == "logout") {
     std::string user_name = tokens[3];
     output_type = SIMPLE;
     success = account_sys_->logout(user_name);
-  } else if (tokens[1] == "query_profile") {
+  } else if (command == "query_profile") {
     std::string cur_user_name, user_name;
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
@@ -70,7 +72,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = F_SIMPLE;
     success = account_sys_->query_profile(cur_user_name, user_name);
-  } else if (tokens[1] == "modify_profile") {
+  } else if (command == "modify_profile") {
     std::string cur_user_name, user_name;
     std::optional<std::string> password, name, mail_addr;
     std::optional<int> privilege;
@@ -81,11 +83,11 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
         cur_user_name = value;
       } else if (key == "-u") {
         user_name = value;
-      } else if (key == "-p") {
+      } else if (key[1] == 'p') {
         password = value;
-      } else if (key == "-n") {
+      } else if (key[1] == 'n') {
         name = value;
-      } else if (key == "-m") {
+      } else if (key[1] == 'm') {
         mail_addr = value;
       } else if (key == "-g") {
         privilege = std::stoi(value);
@@ -93,7 +95,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = F_SIMPLE;
     success = account_sys_->modify_profile(cur_user_name, user_name, password, name, mail_addr, privilege);
-  } else if (tokens[1] == "add_train") {
+  } else if (command == "add_train") {
     std::string train_id;
     int seat_num{};
     vector<std::string> stations;
@@ -105,101 +107,105 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
-      if (key == "-i") {
+      if (key[1] == 'i') {
         train_id = value;
-      } else if (key == "-m") {
+      } else if (key[1] == 'm') {
         seat_num = std::stoi(value);
-      } else if (key == "-s") {
-        stations = StringUtil::Split(value, '|');
-      } else if (key == "-p") {
-        auto vec = StringUtil::Split(value, '|');
+      } else if (key[1] == 's') {
+        StringUtil::Split(value, '|', stations);
+      } else if (key[1] == 'p') {
+        vector<std::string> vec;
+        StringUtil::Split(value, '|', vec);
         for (auto &str : vec) {
           prices.push_back(std::stoi(str));
         }
-      } else if (key == "-x") {
+      } else if (key[1] == 'x') {
         start_time = Time{value};
-      } else if (key == "-t") {
-        auto vec = StringUtil::Split(value, '|');
+      } else if (key[1] == 't') {
+        vector<std::string> vec;
+        StringUtil::Split(value, '|', vec);
         for (auto &str : vec) {
           travel_times.push_back(std::stoi(str));
         }
       } else if (key == "-o") {
         if (value != "_") {
-          auto vec = StringUtil::Split(value, '|');
+          vector<std::string> vec;
+          StringUtil::Split(value, '|', vec);
           for (auto &str : vec) {
             stopover_times.push_back(std::stoi(str));
           }
         }
-      } else if (key == "-d") {
-        auto vec = StringUtil::Split(value, '|');
+      } else if (key[1] == 'd') {
+        vector<std::string> vec;
+        StringUtil::Split(value, '|', vec);
         sale_date = DateRange{Date{vec[0]}, Date{vec[1]}};
-      } else if (key == "-y") {
+      } else if (key[1] == 'y') {
         type = value[0];
       }
     }
     output_type = SIMPLE;
     success = train_sys_->add_train(train_id, seat_num, stations, prices, start_time, travel_times, stopover_times,
-                                    sale_date, type);
-  } else if (tokens[1] == "delete_train") {
+                                   sale_date, type);
+  } else if (command == "delete_train") {
     std::string train_id = tokens[3];
     output_type = SIMPLE;
     success = train_sys_->delete_train(train_id);
-  } else if (tokens[1] == "release_train") {
-    std::string train_id = tokens[3];
+  } else if (command == "release_train") {
+    std::string &train_id = tokens[3];
     output_type = SIMPLE;
     success = train_sys_->release_train(train_id);
-  } else if (tokens[1] == "query_train") {
+  } else if (command == "query_train") {
     std::string train_id;
     Date date;
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
-      if (key == "-i") {
+      if (key[1] == 'i') {
         train_id = value;
-      } else if (key == "-d") {
+      } else if (key[1] == 'd') {
         date = Date{value};
       }
     }
     output_type = F_SIMPLE;
     success = train_sys_->query_train(train_id, date);
-  } else if (tokens[1] == "query_ticket") {
+  } else if (command == "query_ticket") {
     std::string station1, station2;
     Date date;
     QueryType type = QueryType::TIME;
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
-      if (key == "-s") {
+      if (key[1] == 's') {
         station1 = value;
-      } else if (key == "-t") {
+      } else if (key[1] == 't') {
         station2 = value;
-      } else if (key == "-d") {
+      } else if (key[1] == 'd') {
         date = Date{value};
-      } else if (key == "-p") {
-        if (value == "time") {
+      } else if (key[1] == 'p') {
+        if (value[0] == 't') {
           type = QueryType::TIME;
-        } else if (value == "cost") {
+        } else {
           type = QueryType::COST;
         }
       }
     }
     output_type = NORMAL;
     train_sys_->query_ticket(station1, station2, date, type);
-  } else if (tokens[1] == "query_transfer") {
+  } else if (command == "query_transfer") {
     std::string station1, station2;
     Date date;
     QueryType type = QueryType::TIME;
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
-      if (key == "-s") {
+      if (key[1] == 's') {
         station1 = value;
-      } else if (key == "-t") {
+      } else if (key[1] == 't') {
         station2 = value;
-      } else if (key == "-d") {
+      } else if (key[1] == 'd') {
         date = Date{value};
-      } else if (key == "-p") {
-        if (value == "time") {
+      } else if (key[1] == 'p') {
+        if (value[0] == 't') {
           type = QueryType::TIME;
         } else if (value == "cost") {
           type = QueryType::COST;
@@ -211,7 +217,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     if (!success) {
       std::cout << "0\n";
     }
-  } else if (tokens[1] == "buy_ticket") {
+  } else if (command == "buy_ticket") {
     int time_stamp = std::stoi(tokens[0].substr(1, tokens[0].size() - 2));
     std::string user_name, train_id, station1, station2;
     Date date;
@@ -222,51 +228,51 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
       auto &value = tokens[i + 1];
       if (key == "-u") {
         user_name = value;
-      } else if (key == "-i") {
+      } else if (key[1] == 'i') {
         train_id = value;
-      } else if (key == "-d") {
+      } else if (key[1] == 'd') {
         date = Date{value};
-      } else if (key == "-n") {
+      } else if (key[1] == 'n') {
         num = std::stoi(value);
-      } else if (key == "-f") {
+      } else if (key[1] == 'f') {
         station1 = value;
-      } else if (key == "-t") {
+      } else if (key[1] == 't') {
         station2 = value;
-      } else if (key == "-q") {
+      } else if (key[1] == 'q') {
         wait = value == "true";
       }
     }
     output_type = F_SIMPLE;
     success = train_sys_->buy_ticket(time_stamp, user_name, train_id, date, num, station1, station2, wait);
-  } else if (tokens[1] == "query_order") {
-    std::string user_name = tokens[3];
+  } else if (command == "query_order") {
+    std::string &user_name = tokens[3];
     output_type = F_SIMPLE;
     success = train_sys_->query_order(user_name);
-  } else if (tokens[1] == "refund_ticket") {
+  } else if (command == "refund_ticket") {
     std::string user_name;
     int n{};
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
-      if (key == "-u") {
+      if (key[1] == 'u') {
         user_name = value;
-      } else if (key == "-n") {
+      } else if (key[1] == 'n') {
         n = std::stoi(value);
       }
     }
     output_type = SIMPLE;
     success = train_sys_->refund_ticket(user_name, n);
-  } else if (tokens[1] == "clean") {
+  } else if (command == "clean") {
     output_type = NORMAL;
     account_sys_->clear();
     train_sys_->clear();
     std::cout << "0\n";
-  } else if (tokens[1] == "exit") {
+  } else if (command == "exit") {
     std::cout << "bye\n";
     return false;
   }
 #ifdef DEBUG_FILE_IN_TMP
-  else if (tokens[1] == "print_queue") {
+  else if (command == "print_queue") {
     train_sys_->print_queue();
     return true;
   }
@@ -280,12 +286,8 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
   }
   return true;
 }
-ManagementSystem::ManagementSystem() {
-  account_sys_ = new AccountSystem{this};
-  train_sys_ = new TrainSystem{this};
+ManagementSystem::ManagementSystem(AccountSystem *account_sys, TrainSystem *train_sys)
+    : account_sys_{account_sys}, train_sys_{train_sys} {
 }
-ManagementSystem::~ManagementSystem() {
-  delete account_sys_;
-  delete train_sys_;
-}
+ManagementSystem::~ManagementSystem() = default;
 }  // namespace CrazyDave

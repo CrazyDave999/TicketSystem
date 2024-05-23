@@ -40,14 +40,12 @@ auto StringUtil::Repeat(const std::string &str, const std::size_t n) -> std::str
   return (os.str());
 }
 
-auto StringUtil::Split(const std::string &str, char delimiter) -> vector<std::string> {
+void StringUtil::Split(const std::string &str, char delimiter, vector<std::string> &res)  {
   std::stringstream ss(str);
-  vector<std::string> lines;
   std::string temp;
   while (std::getline(ss, temp, delimiter)) {
-    lines.push_back(temp);
+    res.push_back(temp);
   }
-  return (lines);
 }
 
 auto StringUtil::Join(const vector<std::string> &input, const std::string &separator) -> std::string {
@@ -67,7 +65,8 @@ auto StringUtil::Join(const vector<std::string> &input, const std::string &separ
 }
 
 auto StringUtil::Prefix(const std::string &str, const std::string &prefix) -> std::string {
-  vector<std::string> lines = StringUtil::Split(str, '\n');
+  vector<std::string> lines ;
+  StringUtil::Split(str, '\n', lines);
 
   if (lines.empty()) {
     return ("");

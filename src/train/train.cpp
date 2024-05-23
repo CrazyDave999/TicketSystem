@@ -483,5 +483,6 @@ void TrainSystem::clear() {
   station_storage_.clear();
   q_sys_.reset();
 }
+void TrainSystem::load_management_system(ManagementSystem *m_sys) { m_sys_ = m_sys; }
 
 }  // namespace CrazyDave

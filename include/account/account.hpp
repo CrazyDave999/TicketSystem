@@ -43,7 +43,9 @@ class AccountSystem {
   bool is_new_{true};
 
  public:
+  AccountSystem()=default;
   explicit AccountSystem(ManagementSystem *m_sys);
+  void load_management_system(ManagementSystem *m_sys);
   ~AccountSystem();
   auto check_is_login(const std::string &user_name) -> bool;
   auto add_user(const std::optional<std::string> &cur_user_name, const std::string &user_name,

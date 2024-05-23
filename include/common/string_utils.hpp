@@ -25,7 +25,7 @@ class StringUtil {
   static auto Repeat(const std::string &str, std::size_t n) -> std::string;
 
   /** @return input string split based on the delimiter */
-  static auto Split(const std::string &str, char delimiter) -> vector<std::string>;
+  static void Split(const std::string &str, char delimiter, vector<std::string> &res);
 
   /** @return concatenation of all input strings, separated by the separator */
   static auto Join(const vector<std::string> &input, const std::string &separator) -> std::string;
