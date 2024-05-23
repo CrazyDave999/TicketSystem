@@ -6,7 +6,7 @@
 #include "data_structures/vector.h"
 
 namespace CrazyDave {
-template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 27>
+template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 228>
 class BPlusTree {
   struct Pair {
     key_t key{};
@@ -32,41 +32,26 @@ class BPlusTree {
 
   struct WTreeNode {  // Writable struct for a TreeNode.
     int pos{};
-    int ch_num {0};
-    int block_pos{0};
-    int size{0};
-    Pair keys[M]{};
+    int ch_num = 0;
+    int block_pos = 0;
+    int size = 0;
+    Pair keys[M];
     int ch_pos[M + 1]{};  // The position of children's STreeNode in tree_file.
-
-    WTreeNode() = default;
-
-    explicit WTreeNode(const TreeNode &n) : pos(n.pos), ch_num(n.ch_num), block_pos(n.block_pos), size(n.size) {
-      for (int i = 0; i < ch_num; ++i) {
-        if (i < ch_num - 1) {
-          keys[i] = n.keys[i];
-        }
-        ch_pos[i] = n.children[i]->pos;
-      }
-    }
   };
+  static const int SIZE_OF_NODE = sizeof(WTreeNode);
 
   struct TreeNode {
-    TreeNode *fa {nullptr};
-    int ch_num{0};   // If ch_num=0, this node is a leaf.
-    int pos{};        // The position of this node in tree_file.
+    TreeNode *fa{nullptr};
+    int ch_num{0};    // If ch_num=0, this node is a leaf.
+    int pos{0};       // The position of this node in tree_file.
     int block_pos{};  // The position of data in data_file. Only leaf node available.
-    int size {0};     // Size of block. Only leaf node available.
-    Pair keys[M]{};     // At most M - 1 keys, leave one.
-    TreeNode *children[M + 1]{};
+    int size = 0;     // Size of block. Only leaf node available.
+    Pair keys[M]{};   // At most M - 1 keys, leave one.
+    TreeNode *children[M + 1];
 
+    TreeNode() = default;
     TreeNode(TreeNode *_fa, int _ch_num, int _pos, int _block_pos = 0)
         : fa(_fa), ch_num(_ch_num), pos(_pos), block_pos(_block_pos) {}
-
-    explicit TreeNode(const WTreeNode &wn) : ch_num(wn.ch_num), pos(wn.pos), block_pos(wn.block_pos), size(wn.size) {
-      for (int i = 0; i < ch_num - 1; ++i) {
-        keys[i] = wn.keys[i];
-      }
-    }
   };
 
   struct Storage {
@@ -126,30 +111,49 @@ class BPlusTree {
   File node_storage_file;  // Information of node_storage.
   File block_file;
   File block_storage_file;
-  TreeNode *root{};
+  TreeNode *root;
   using Block = Pair[L + 1];
-  Block cache1{};
-  Block cache2{};
+  Block cache1;
+  Block cache2;
   Storage node_storage{&node_storage_file};
   Storage block_storage{&block_storage_file};
 
   void read_node(TreeNode *&n) {  // Use dfs to read the structure of tree in tree_file.
-    WTreeNode wn;
-    node_file.read(wn);
-    n = new TreeNode{wn};
+                                  //    WTreeNode wn;
+    n = new TreeNode;
+    node_file.read(n->pos);
+    node_file.read(n->ch_num);
+    node_file.read(n->block_pos);
+    node_file.read(n->size);
+    for (int i = 0; i < n->ch_num - 1; ++i) {
+      node_file.read(n->keys[i]);
+    }
+    int ch_pos[M + 1];
+    for (int i = 0; i < n->ch_num; ++i) {
+      node_file.read(ch_pos[i]);
+    }
 
     for (int i = 0; i < n->ch_num; ++i) {
-      node_file.seekg(wn.ch_pos[i] * sizeof(WTreeNode));
+      node_file.seekg(ch_pos[i] * SIZE_OF_NODE);
       read_node(n->children[i]);
       n->children[i]->fa = n;
     }
   }
 
   void write_node(TreeNode *n) {
-    WTreeNode wn{*n};
-    node_file.write(wn);
+    node_file.write(n->pos);
+    node_file.write(n->ch_num);
+    node_file.write(n->block_pos);
+    node_file.write(n->size);
+    for (int i = 0; i < n->ch_num - 1; ++i) {
+      node_file.write(n->keys[i]);
+    }
     for (int i = 0; i < n->ch_num; ++i) {
-      node_file.seekp(wn.ch_pos[i] * sizeof(WTreeNode));
+      node_file.write(n->children[i]->pos);
+    }
+
+    for (int i = 0; i < n->ch_num; ++i) {
+      node_file.seekp(n->children[i]->pos * SIZE_OF_NODE);
       write_node(n->children[i]);
     }
     delete n;
@@ -160,7 +164,6 @@ class BPlusTree {
     }
     delete n;
   }
-
   void read_block(TreeNode *n, Block &bk) {
     block_file.seekg(n->block_pos * sizeof(Block));
     block_file.read(bk, n->size * sizeof(Pair));
@@ -372,11 +375,11 @@ class BPlusTree {
     }
   }
 
-  void insert(TreeNode *n, const Pair &pr) {
+  void insert_at_node(TreeNode *n, const Pair &pr) {
     if (n->ch_num > 0) {
       // Not leaf node.
       int pos = upper_bound(n->keys, n->ch_num - 1, pr);
-      insert(n->children[pos], pr);
+      insert_at_node(n->children[pos], pr);
       return;
     }
     // Leaf node.
@@ -390,10 +393,10 @@ class BPlusTree {
     }
   }
 
-  void remove(TreeNode *n, const Pair &pr) {
+  void remove_at_node(TreeNode *n, const Pair &pr) {
     if (n->ch_num > 0) {
       int pos = upper_bound(n->keys, n->ch_num - 1, pr);
-      remove(n->children[pos], pr);
+      remove_at_node(n->children[pos], pr);
       return;
     }
     Block &bk = cache1;
@@ -409,7 +412,7 @@ class BPlusTree {
     }
   }
 
-  void find(TreeNode *n, const key_t &key, vector<value_t> &res) {
+  void find_at_node(TreeNode *n, const key_t &key, vector<value_t> &res) {
     if (n->ch_num == 0) {
       Block &bk = cache1;
       read_block(n, bk);
@@ -423,7 +426,7 @@ class BPlusTree {
     int l = lower_bound(n->keys, n->ch_num - 1, key);
     int r = upper_bound(n->keys, n->ch_num - 1, key);
     for (int i = l; i <= r; ++i) {
-      find(n->children[i], key, res);
+      find_at_node(n->children[i], key, res);
     }
   }
 
@@ -439,7 +442,7 @@ class BPlusTree {
     } else {
       node_storage.read();
       block_storage.read();
-      node_file.seekg(node_storage.root_pos * sizeof(WTreeNode));
+      node_file.seekg(node_storage.root_pos * SIZE_OF_NODE);
       read_node(root);
     }
   }
@@ -447,7 +450,7 @@ class BPlusTree {
   ~BPlusTree() {
     node_storage.write();
     block_storage.write();
-    node_file.seekp(node_storage.root_pos * sizeof(WTreeNode));
+    node_file.seekp(node_storage.root_pos * SIZE_OF_NODE);
     write_node(root);
     node_file.close();
     node_storage_file.close();
@@ -457,17 +460,16 @@ class BPlusTree {
 
   void insert(const key_t &key, const value_t &val) {
     Pair pr{key, val};
-    insert(root, pr);
+    insert_at_node(root, pr);
   }
 
   void remove(const key_t &key, const value_t &val) {
     Pair pr{key, val};
-    remove(root, pr);
+    remove_at_node(root, pr);
   }
 
-  void find(const key_t &key, vector<value_t> &res){
-    find(root, key, res);
-  }
+  void find(const key_t &key, vector<value_t> &res) { find_at_node(root, key, res); }
+
   void clear() {
     node_file.clear();
     node_storage_file.clear();
@@ -478,6 +480,7 @@ class BPlusTree {
     block_storage.reset();
     root = new TreeNode{nullptr, 0, node_storage.assign(), block_storage.assign()};
   }
+
 };
 }  // namespace CrazyDave
 
