@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.22)
 project(TicketSystem)
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Ofast")
 set(
         SRC_LIST
         main.cpp

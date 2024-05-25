@@ -6,7 +6,7 @@ namespace CrazyDave {
 
 static constexpr int INVALID_PAGE_ID = -1;     // invalid page id
 static constexpr int HEADER_PAGE_ID = 0;       // the header page id
-static constexpr int BUSTUB_PAGE_SIZE = 8192;  // size of a data page in byte
+static constexpr int BUSTUB_PAGE_SIZE = 16384;  // size of a data page in byte
 static constexpr int BUFFER_POOL_SIZE = 10;    // size of buffer pool
 static constexpr int LRUK_REPLACER_K = 10;     // lookback window for lru-k replacer
 

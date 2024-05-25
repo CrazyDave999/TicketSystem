@@ -27,9 +27,9 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
-      if (key == "-c") {
+      if (key[1] == 'c') {
         cur_user_name = value;
-      } else if (key == "-u") {
+      } else if (key[1] == 'u') {
         user_name = value;
       } else if (key[1] == 'p') {
         password = value;
@@ -37,7 +37,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
         name = value;
       } else if (key[1] == 'm') {
         mail_addr = value;
-      } else if (key == "-g") {
+      } else if (key[1] == 'g') {
         privilege = std::stoi(value);
       }
     }
@@ -48,7 +48,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     for (int i = 2; i < (int)tokens.size(); i += 2) {
       auto &key = tokens[i];
       auto &value = tokens[i + 1];
-      if (key == "-u") {
+      if (key[1] == 'u') {
         user_name = value;
       } else if (key[1] == 'p') {
         password = value;
@@ -208,7 +208,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
       } else if (key[1] == 'p') {
         if (value[0] == 't') {
           type = QueryType::TIME;
-        } else if (value == "cost") {
+        } else {
           type = QueryType::COST;
         }
       }
@@ -240,7 +240,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
       } else if (key[1] == 't') {
         station2 = value;
       } else if (key[1] == 'q') {
-        wait = value == "true";
+        wait = value[0] == 't';
       }
     }
     output_type = F_SIMPLE;

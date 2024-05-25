@@ -43,7 +43,7 @@ auto AccountSystem::login(const std::string &user_name, const std::string &passw
   if (user_vec.empty() || user_vec[0].password_ != password) {
     return false;
   }
-  login_list_.insert({user_hs, 1});
+  login_list_.insert({user_hs, user_vec[0].privilege_});
   return true;
 }
 auto AccountSystem::logout(const std::string &user_name) -> bool {
@@ -68,11 +68,8 @@ auto AccountSystem::query_profile(const std::string &cur_user_name, const std::s
     return false;
   }
   auto &user = user_vec[0];
-  if (cur_user_name != user_name) {
-    vector<Account> cur_user_vec;
-    account_storage_.find(cur_hs, cur_user_vec);
-    auto &cur_user = cur_user_vec[0];
-    if (cur_user.privilege_ <= user.privilege_) {
+  if (cur_hs != user_hs) {
+    if (it->second <= user.privilege_) {
       return false;
     }
   }
@@ -95,13 +92,11 @@ auto AccountSystem::modify_profile(const std::string &cur_user_name, const std::
     return false;
   }
   auto &user = user_vec[0];
-  vector<Account> cur_user_vec;
-  account_storage_.find(cur_hs, cur_user_vec);
-  auto &cur_user = cur_user_vec[0];
-  if (cur_user_name != user_name && cur_user.privilege_ <= user.privilege_) {
+
+  if (cur_hs != user_hs && it->second <= user.privilege_) {
     return false;
   }
-  if (privilege.has_value() && privilege >= cur_user.privilege_) {
+  if (privilege.has_value() && privilege >= it->second) {
     return false;
   }
   account_storage_.remove(user_hs, user);
@@ -118,6 +113,10 @@ auto AccountSystem::modify_profile(const std::string &cur_user_name, const std::
     user.mail_addr_ = mail_addr.value();
   }
   account_storage_.insert(user_hs, user);
+  auto user_it = login_list_.find(user_hs);
+  if (user_it != login_list_.end()) {
+    user_it->second = user.privilege_;
+  }
   std::cout << user;
   return true;
 }
