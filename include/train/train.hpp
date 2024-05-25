@@ -1,7 +1,6 @@
 #ifndef TICKET_SYSTEM_TRAIN_HPP
 #define TICKET_SYSTEM_TRAIN_HPP
 #include <iostream>
-#include <sstream>
 #include <string>
 #include "common/management_system.hpp"
 #include "common/utils.hpp"
@@ -34,7 +33,7 @@ class Train {
   DateRange sale_date_range_{};
   char type_{};
   bool is_released_{};
-  size_t index_{};
+  size_t index_{}; // the position in storage file
 
  public:
   Train() = default;
@@ -45,9 +44,7 @@ class Train {
   auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
 };
 struct Seat {
-  size_t train_hs_{};
   int seat_num_[100][92]{};  // [station][date] date 是从始发站出发的日期 index
-  bool operator<(const Seat &rhs) const { return train_hs_ < rhs.train_hs_; }
 };
 class TrainIO {
  private:
@@ -56,7 +53,7 @@ class TrainIO {
   File train_storage_{"tmp/trn_st"};
   File seat_storage_{"tmp/s_st"};
 #else
-  BPT<size_t , size_t> index_storage_{"idx", 0, 30, 5};
+  BPT<size_t , size_t> index_storage_{"idx", 0, 60, 5};
   File train_storage_{"trn_st"};
   File seat_storage_{"s_st"};
 #endif
@@ -112,11 +109,8 @@ class TrainIO {
     train_storage_.seekg(OFFSET + index * SIZE_OF_TRAIN);
     train_storage_.read(train);
   }
-  void write_train(size_t train_hs,const Train &train) {
-    vector<size_t> index_vec;
-    index_storage_.find(train_hs, index_vec);
-    size_t &index = index_vec[0];
-    train_storage_.seekp(OFFSET + index * SIZE_OF_TRAIN);
+  void write_train(const Train &train) {
+    train_storage_.seekp(OFFSET + train.index_ * SIZE_OF_TRAIN);
     train_storage_.write(train);
   }
   void read_seat(size_t train_hs, Seat &seat) {
@@ -213,12 +207,9 @@ class TrainSystem {
   BPT<size_t, Trade> trade_storage_{"tmp/trd", 0, 300, 30};
   BPT<size_t, Record> station_storage_{"tmp/st", 0, 300, 30};
 #else
-  //  MyBPlusTree<size_t, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
-  //  MyBPlusTree<size_t, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
-  //  MyBPlusTree<size_t, Record> station_storage_{"st1", "st2", "st3", "st4"};
 
-  BPT<size_t, Trade> trade_storage_{"trd", 0, 30, 5};
-  BPT<size_t, Record> station_storage_{"st", 0, 30, 5};
+  BPT<size_t, Trade> trade_storage_{"trd", 0, 60, 5};
+  BPT<size_t, Record> station_storage_{"st", 0, 60, 5};
 
 #endif
   QueueSystem q_sys_;

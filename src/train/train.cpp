@@ -15,7 +15,6 @@ Train::Train(const std::string &train_id, int seat_num, const vector<std::string
   int price_sum = 0;
   for (int i = 0; i < station_num_; ++i) {
     stations_[i] = stations[i];
-    //    const char *s= stations_[i].c_str();
     prices_[i] = price_sum;
     if (i < station_num_ - 1) {
       price_sum += prices[i];
@@ -69,13 +68,13 @@ auto TrainSystem::release_train(const std::string &train_id) -> bool {
     return false;
   }
   train.is_released_ = true;
-  t_io_.write_train(train_hs, train);
+  t_io_.write_train(train);
   for (int i = 0; i < train.station_num_; ++i) {
     auto station_hs = HashBytes(train.stations_[i].c_str());
     station_storage_.insert(station_hs, {train_hs, i});
   }
   Seat seat{};
-  seat.train_hs_ = train_hs;
+
   for (int i = 0; i < train.station_num_; ++i) {
     for (int j = 0; j < 92; ++j) {
       seat.seat_num_[i][j] = train.seat_num_;
@@ -363,7 +362,6 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   t_io_.read_seat(train_hs, seat);
   auto &seat_num = seat.seat_num_;
   for (int i = 0; i < train.station_num_; ++i) {
-    //    const char *s=train.stations_[i].c_str();
     if (train.stations_[i] == station_2) {
       i2 = i;
       break;

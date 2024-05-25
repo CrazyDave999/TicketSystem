@@ -607,13 +607,13 @@ class BPlusTree {
     int l = internal_page->LowerBoundByFirst(key, comparator_) - 1;
     int r = internal_page->UpperBoundByFirst(key, comparator_) - 1;
 
-    page_id_t son_page_id[INTERNAL_PAGE_SIZE + 2];
+    //    page_id_t son_page_id[INTERNAL_PAGE_SIZE+2];
+    //    for (int i = l; i <= r; ++i) {
+    //      son_page_id[i - l] = internal_page->ValueAt(i);
+    //    }
+    //    guard.Drop();
     for (int i = l; i <= r; ++i) {
-      son_page_id[i - l] = internal_page->ValueAt(i);
-    }
-    guard.Drop();
-    for (int i = l; i <= r; ++i) {
-      auto n_guard = bpm_->FetchPageRead(son_page_id[i - l]);
+      auto n_guard = bpm_->FetchPageRead(internal_page->ValueAt(i));
       find(key, result, n_guard);
     }
   }
