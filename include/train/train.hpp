@@ -56,7 +56,7 @@ class TrainIO {
   File train_storage_{"tmp/trn_st"};
   File seat_storage_{"tmp/s_st"};
 #else
-  BPT<size_t , size_t> index_storage_{"idx", 0, 15, 5};
+  BPT<size_t , size_t> index_storage_{"idx", 0, 30, 5};
   File train_storage_{"trn_st"};
   File seat_storage_{"s_st"};
 #endif
@@ -87,9 +87,8 @@ class TrainIO {
     index_storage_.find(train_hs, index_vec);
     return !index_vec.empty();
   }
-  void insert_train(Train &train) {
+  void insert_train(size_t train_hs,Train &train) {
     size_t index = size++;
-    auto train_hs = HashBytes(train.train_id_.c_str());
     index_storage_.insert(train_hs, index);
     train.index_ = index;
     train_storage_.seekp(OFFSET + index * SIZE_OF_TRAIN);
@@ -113,8 +112,7 @@ class TrainIO {
     train_storage_.seekg(OFFSET + index * SIZE_OF_TRAIN);
     train_storage_.read(train);
   }
-  void write_train(const Train &train) {
-    auto train_hs = HashBytes(train.train_id_.c_str());
+  void write_train(size_t train_hs,const Train &train) {
     vector<size_t> index_vec;
     index_storage_.find(train_hs, index_vec);
     size_t &index = index_vec[0];
@@ -219,8 +217,8 @@ class TrainSystem {
   //  MyBPlusTree<size_t, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
   //  MyBPlusTree<size_t, Record> station_storage_{"st1", "st2", "st3", "st4"};
 
-  BPT<size_t, Trade> trade_storage_{"trd", 0, 15, 5};
-  BPT<size_t, Record> station_storage_{"st", 0, 15, 5};
+  BPT<size_t, Trade> trade_storage_{"trd", 0, 30, 5};
+  BPT<size_t, Record> station_storage_{"st", 0, 30, 5};
 
 #endif
   QueueSystem q_sys_;

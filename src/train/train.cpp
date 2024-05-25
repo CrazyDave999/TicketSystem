@@ -42,7 +42,7 @@ auto TrainSystem::add_train(const std::string &train_id, int seat_num, const vec
     return false;
   }
   Train train{train_id, seat_num, stations, prices, start_time, travel_times, stop_over_times, sale_date, type};
-  t_io_.insert_train(train);
+  t_io_.insert_train(train_hs, train);
   return true;
 }
 auto TrainSystem::delete_train(const std::string &train_id) -> bool {
@@ -69,7 +69,7 @@ auto TrainSystem::release_train(const std::string &train_id) -> bool {
     return false;
   }
   train.is_released_ = true;
-  t_io_.write_train(train);
+  t_io_.write_train(train_hs, train);
   for (int i = 0; i < train.station_num_; ++i) {
     auto station_hs = HashBytes(train.stations_[i].c_str());
     station_storage_.insert(station_hs, {train_hs, i});

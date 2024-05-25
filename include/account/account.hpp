@@ -33,7 +33,7 @@ class AccountSystem {
   BPT<size_t, Account> account_storage_{"tmp/ac", 0, 300, 30};
 #else
   //  MyBPlusTree<size_t, Account> account_storage_{"ac1", "ac2", "ac3", "ac4"};
-  BPT<size_t, Account> account_storage_{"ac", 0, 15, 5};
+  BPT<size_t, Account> account_storage_{"ac", 0, 30, 5};
 
 #endif
   linked_hashmap<size_t, int> login_list_;
