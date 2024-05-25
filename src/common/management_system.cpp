@@ -19,6 +19,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
   enum OutputType { SIMPLE, F_SIMPLE, NORMAL } output_type = SIMPLE;
   bool success = false;
   auto &command = tokens[1];
+  bool flag=tokens[0]=="[3403]";
   if (command == "add_user") {
     std::optional<std::string> cur_user_name;
     std::optional<int> privilege;
@@ -277,10 +278,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     return true;
   }
 #endif
-  //  int time_stamp = std::stoi(tokens[0].substr(1, tokens[0].size() - 2));
-  //  if (time_stamp > 3400 && time_stamp < 3500) {
-  //    train_sys_->query_train("INSCRIPTIONS", Date{6, 19});
-  //  }
+
   if (output_type == SIMPLE) {
     std::cout << (success ? "0\n" : "-1\n");
   } else if (output_type == F_SIMPLE) {

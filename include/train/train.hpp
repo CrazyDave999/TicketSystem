@@ -17,20 +17,24 @@ enum class QueryType { TIME, COST };
 enum class Status { SUCCESS, PENDING, REFUNDED };
 class TrainSystem;
 class QueueSystem;
+class TrainIO;
+
 class Train {
   friend TrainSystem;
+  friend TrainIO;
 
  private:
   String<20> train_id_{};
   int station_num_{};
   String<44> stations_[100]{};  // [station]
   int seat_num_{};
-  int prices_[99]{};               // [station]
+  int prices_[99]{};                // [station]
   DateTimeRange time_ranges_[100];  // [station], {arrival time, leaving time},
                                     // record the offset time from the start_time
   DateRange sale_date_range_{};
   char type_{};
   bool is_released_{};
+  size_t index_{};
 
  public:
   Train() = default;
@@ -44,6 +48,87 @@ struct Seat {
   size_t train_hs_{};
   int seat_num_[100][92]{};  // [station][date] date 是从始发站出发的日期 index
   bool operator<(const Seat &rhs) const { return train_hs_ < rhs.train_hs_; }
+};
+class TrainIO {
+ private:
+  BPT<size_t , size_t> index_storage_{"idx", 0, 15, 5};
+  File train_storage_{"trn_st"};
+  File seat_storage_{"s_st"};
+  size_t size{};
+  static const size_t OFFSET = sizeof(size_t);
+  static const size_t SIZE_OF_TRAIN = sizeof(Train);
+  static const size_t SIZE_OF_SEAT = sizeof(Seat);
+
+ public:
+  TrainIO() {
+    train_storage_.open();
+    seat_storage_.open();
+    if (train_storage_.get_is_new()) {
+      size = 0;
+    } else {
+      train_storage_.seekg(0);
+      train_storage_.read(size);
+    }
+  }
+  ~TrainIO() {
+    train_storage_.seekp(0);
+    train_storage_.write(size);
+    train_storage_.close();
+    seat_storage_.close();
+  }
+  bool check_exist(size_t train_hs) {
+    vector<size_t> index_vec;
+    index_storage_.find(train_hs, index_vec);
+    return !index_vec.empty();
+  }
+  void insert_train(Train &train) {
+    size_t index = size++;
+    auto train_hs = HashBytes(train.train_id_.c_str());
+    index_storage_.insert(train_hs, index);
+    train.index_ = index;
+    train_storage_.seekp(OFFSET + index * SIZE_OF_TRAIN);
+    train_storage_.write(train);
+  }
+  void insert_seat(size_t train_hs,const Seat &seat) {
+    vector<size_t> index_vec;
+    index_storage_.find(train_hs, index_vec);
+    size_t &index = index_vec[0];
+    seat_storage_.seekp(OFFSET + index * SIZE_OF_SEAT);
+    seat_storage_.write(seat);
+  }
+  void remove_train(const Train &train) {
+    auto train_hs = HashBytes(train.train_id_.c_str());
+    index_storage_.remove(train_hs, train.index_);
+  }
+  void read_train(size_t train_hs, Train &train) {
+    vector<size_t> index_vec;
+    index_storage_.find(train_hs, index_vec);
+    size_t &index = index_vec[0];
+    train_storage_.seekg(OFFSET + index * SIZE_OF_TRAIN);
+    train_storage_.read(train);
+  }
+  void write_train(const Train &train) {
+    auto train_hs = HashBytes(train.train_id_.c_str());
+    vector<size_t> index_vec;
+    index_storage_.find(train_hs, index_vec);
+    size_t &index = index_vec[0];
+    train_storage_.seekp(OFFSET + index * SIZE_OF_TRAIN);
+    train_storage_.write(train);
+  }
+  void read_seat(size_t train_hs, Seat &seat) {
+    vector<size_t> index_vec;
+    index_storage_.find(train_hs, index_vec);
+    size_t &index = index_vec[0];
+    seat_storage_.seekg(OFFSET + index * SIZE_OF_SEAT);
+    seat_storage_.read(seat);
+  }
+  void write_seat(size_t train_hs,const Seat &seat) {
+    vector<size_t> index_vec;
+    index_storage_.find(train_hs, index_vec);
+    size_t &index = index_vec[0];
+    seat_storage_.seekp(OFFSET + index * SIZE_OF_SEAT);
+    seat_storage_.write(seat);
+  }
 };
 class TrainSystem {
   struct Record {
@@ -120,21 +205,21 @@ class TrainSystem {
  private:
 #ifdef DEBUG_FILE_IN_TMP
   MyBPlusTree<size_t, Seat> seat_storage_{"tmp/se1", "tmp/se2", "tmp/se3", "tmp/se4"};
-  MyBPlusTree<size_t, Train> train_storage_{"tmp/tr1","tmp/tr2","tmp/tr3","tmp/tr4"};
+  MyBPlusTree<size_t, Train> train_storage_{"tmp/tr1", "tmp/tr2", "tmp/tr3", "tmp/tr4"};
   BPT<size_t, Trade> trade_storage_{"tmp/trd", 0, 300, 30};
   BPT<size_t, Record> station_storage_{"tmp/st", 0, 300, 30};
 #else
   //  MyBPlusTree<size_t, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
   //  MyBPlusTree<size_t, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
   //  MyBPlusTree<size_t, Record> station_storage_{"st1", "st2", "st3", "st4"};
-  MyBPlusTree<size_t, Seat> seat_storage_{"se1", "se2", "se3", "se4"};
-  MyBPlusTree<size_t, Train> train_storage_{"tr1","tr2","tr3","tr4"};
-  BPT<size_t, Trade> trade_storage_{"trd", 0, 100, 30};
-  BPT<size_t, Record> station_storage_{"st", 0, 100, 30};
+
+  BPT<size_t, Trade> trade_storage_{"trd", 0, 15, 5};
+  BPT<size_t, Record> station_storage_{"st", 0, 15, 5};
 
 #endif
   QueueSystem q_sys_;
   ManagementSystem *m_sys_{};
+  TrainIO t_io_{};
 
   /*
    * 检查候补队列，将能够补票的所有订单补票
@@ -176,5 +261,6 @@ class TrainSystem {
 //  }
 #endif
 };
+
 }  // namespace CrazyDave
 #endif  // TICKET_SYSTEM_TRAIN_HPP

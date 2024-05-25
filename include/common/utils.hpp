@@ -144,7 +144,7 @@ class String {
 
   operator std::string() const { return std::move(std::string(str)); }
 
-  const char *c_str() { return str; }
+  const char *c_str() const { return str; }
 
   char &operator[](int pos) { return str[pos]; }
 
@@ -239,9 +239,9 @@ class File {
     fs.write(reinterpret_cast<const char *>(&src), (long)size);
   }
 
-  void seekg(int pos) { fs.seekg(pos); }
+  void seekg(size_t pos) { fs.seekg(pos); }
 
-  void seekp(int pos) { fs.seekp(pos); }
+  void seekp(size_t pos) { fs.seekp(pos); }
 
   void clear() {
     fs.close();
