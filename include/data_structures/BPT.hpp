@@ -7,7 +7,7 @@
 
 namespace CrazyDave {
 template <class key_t = String<65>, class value_t = int, const int M = 100, const int L = 27>
-class BPlusTree {
+class MyBPlusTree {
   struct Pair {
     key_t key{};
     value_t val{};
@@ -431,7 +431,7 @@ class BPlusTree {
   }
 
  public:
-  BPlusTree(const char *node_str1, const char *node_str2, const char *block_str1, const char *block_str2)
+  MyBPlusTree(const char *node_str1, const char *node_str2, const char *block_str1, const char *block_str2)
       : node_file(node_str1), node_storage_file(node_str2), block_file(block_str1), block_storage_file(block_str2) {
     node_file.open();
     node_storage_file.open();
@@ -447,7 +447,7 @@ class BPlusTree {
     }
   }
 
-  ~BPlusTree() {
+  ~MyBPlusTree() {
     node_storage.write();
     block_storage.write();
     node_file.seekp(node_storage.root_pos * SIZE_OF_NODE);

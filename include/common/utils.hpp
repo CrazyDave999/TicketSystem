@@ -164,7 +164,9 @@ class String {
     return *this;
   }
 
-  bool operator==(const String &rhs) const { return !std::strcmp(str, rhs.str); }
+  bool operator==(const String &rhs) const {
+    return !std::strcmp(str, rhs.str);
+  }
 
   bool operator!=(const String &rhs) const { return std::strcmp(str, rhs.str); }
 

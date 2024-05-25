@@ -15,7 +15,7 @@ class list {
       data = nullptr;
     }
     explicit node(T &&D, node *N = nullptr, node *P = nullptr) : next(N), prev(P) { data = new T(std::move(D)); }
-    explicit node(const T &D, node *N = nullptr, node *P = nullptr) : next(N), prev(P) { data = new T(std::move(D)); }
+    explicit node(T &D, node *N = nullptr, node *P = nullptr) : next(N), prev(P) { data = new T(std::move(D)); }
     ~node() { delete data; };
   };
 
@@ -168,8 +168,8 @@ class list {
     const_iterator itr(tail);
     return itr;
   }
-  [[nodiscard]] virtual bool empty() const { return currentSize == 0; }
-  [[nodiscard]] virtual size_t size() const { return currentSize; }
+  virtual bool empty() const { return currentSize == 0; }
+  virtual size_t size() const { return currentSize; }
 
   virtual void clear() {
     while (!empty()) {
@@ -177,7 +177,20 @@ class list {
     }
   }
 
-
+  virtual iterator insert(iterator pos, T &value) {
+    node *tmp = new node(value, pos.ptr, pos.ptr->prev);
+    pos.ptr->prev = pos.ptr->prev->next = tmp;
+    ++currentSize;
+    pos.ptr = tmp;
+    return pos;
+  }
+  virtual iterator insert(iterator pos, T &&value) {
+    node *tmp = new node(value, pos.ptr, pos.ptr->prev);
+    pos.ptr->prev = pos.ptr->prev->next = tmp;
+    ++currentSize;
+    pos.ptr = tmp;
+    return pos;
+  }
   virtual iterator erase(iterator pos) {
     pos.ptr->prev->next = pos.ptr->next;
     pos.ptr->next->prev = pos.ptr->prev;
@@ -187,7 +200,7 @@ class list {
     --currentSize;
     return pos;
   }
-  void push_back(const T &value) {
+  void push_back(T &value) {
     node *tmp = new node(value, tail, tail->prev);
     tail->prev->next = tmp;
     tail->prev = tmp;

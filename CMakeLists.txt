@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.22)
 project(TicketSystem)
 
 set(CMAKE_CXX_STANDARD 23)
-#if(NOT CMAKE_BUILD_TYPE)
-#    set(CMAKE_BUILD_TYPE Release)
-#endif()
-#set(CMAKE_CXX_FLAGS_RELEASE -Ofast)
-#
-#set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3  -Wall")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3  -Wall")
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+set(CMAKE_CXX_FLAGS_RELEASE -Ofast)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3  -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3  -Wall")
 set(
         SRC_LIST
         main.cpp
@@ -19,5 +19,6 @@ set(
         src/train/queue_system.cpp
         src/train/train.cpp
 )
-include_directories(include)
+include_directories(include include/data_structures include/data_structures/BPT/include)
 add_executable(${PROJECT_NAME} ${SRC_LIST})
+add_subdirectory(include/data_structures/BPT/src)

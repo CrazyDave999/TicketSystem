@@ -145,7 +145,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
     }
     output_type = SIMPLE;
     success = train_sys_->add_train(train_id, seat_num, stations, prices, start_time, travel_times, stopover_times,
-                                   sale_date, type);
+                                    sale_date, type);
   } else if (command == "delete_train") {
     std::string train_id = tokens[3];
     output_type = SIMPLE;
@@ -273,10 +273,14 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
   }
 #ifdef DEBUG_FILE_IN_TMP
   else if (command == "print_queue") {
-    train_sys_->print_queue();
+    //    train_sys_->print_queue();
     return true;
   }
 #endif
+  //  int time_stamp = std::stoi(tokens[0].substr(1, tokens[0].size() - 2));
+  //  if (time_stamp > 3400 && time_stamp < 3500) {
+  //    train_sys_->query_train("INSCRIPTIONS", Date{6, 19});
+  //  }
   if (output_type == SIMPLE) {
     std::cout << (success ? "0\n" : "-1\n");
   } else if (output_type == F_SIMPLE) {
@@ -287,7 +291,6 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
   return true;
 }
 ManagementSystem::ManagementSystem(AccountSystem *account_sys, TrainSystem *train_sys)
-    : account_sys_{account_sys}, train_sys_{train_sys} {
-}
+    : account_sys_{account_sys}, train_sys_{train_sys} {}
 ManagementSystem::~ManagementSystem() = default;
 }  // namespace CrazyDave

@@ -8,7 +8,9 @@
 #include "data_structures/BPT.hpp"
 #include "data_structures/linked_hashmap.h"
 #include "data_structures/vector.h"
+#include "storage/index/b_plus_tree.h"
 #include "train/queue_system.hpp"
+
 namespace CrazyDave {
 class ManagementSystem;
 enum class QueryType { TIME, COST };
@@ -21,9 +23,9 @@ class Train {
  private:
   String<20> train_id_{};
   int station_num_{};
-  String<40> stations_[100]{};  // [station]
+  String<44> stations_[100]{};  // [station]
   int seat_num_{};
-  int prices_[100]{};               // [station]
+  int prices_[99]{};               // [station]
   DateTimeRange time_ranges_[100];  // [station], {arrival time, leaving time},
                                     // record the offset time from the start_time
   DateRange sale_date_range_{};
@@ -40,8 +42,8 @@ class Train {
 };
 struct Seat {
   size_t train_hs_{};
-  int seat_num_[100][92]{}; // [station][date] date 是从始发站出发的日期 index
-  bool operator<(const Seat &rhs) const { return train_hs_ < rhs.train_hs_;}
+  int seat_num_[100][92]{};  // [station][date] date 是从始发站出发的日期 index
+  bool operator<(const Seat &rhs) const { return train_hs_ < rhs.train_hs_; }
 };
 class TrainSystem {
   struct Record {
@@ -55,8 +57,8 @@ class TrainSystem {
     String<20> train_id_{};
     DateTime leaving_time_{};
     DateTime arrival_time_{};
-    String<40> station_1_{};
-    String<40> station_2_{};
+    String<44> station_1_{};
+    String<44> station_2_{};
     int station_index_1_{};
     int station_index_2_{};
     int price_{};
@@ -66,8 +68,8 @@ class TrainSystem {
    public:
     Trade() = default;
     Trade(int time_stamp, const Status &status, const String<20> &train_id, const DateTime &leaving_time,
-          const DateTime &arrival_time, const String<40> &station_1, int station_index_1, const String<40> &station_2,
-          int station_index_2, int price, int num,int date_index)
+          const DateTime &arrival_time, const String<44> &station_1, int station_index_1, const String<44> &station_2,
+          int station_index_2, int price, int num, int date_index)
         : time_stamp_(time_stamp),
           status_(status),
           train_id_(train_id),
@@ -78,7 +80,8 @@ class TrainSystem {
           station_index_1_(station_index_1),
           station_index_2_(station_index_2),
           price_(price),
-          num_(num),date_index_(date_index) {}
+          num_(num),
+          date_index_(date_index) {}
     friend std::ostream &operator<<(std::ostream &os, const Trade &trade) {
       switch (trade.status_) {
         case Status::SUCCESS:
@@ -109,21 +112,26 @@ class TrainSystem {
   struct TransferResult {
     TicketResult res_1{};
     TicketResult res_2{};
-    String<40> mid_station{};
+    String<44> mid_station{};
     [[nodiscard]] auto total_time() const -> int { return res_2.range.second - res_1.range.first; }
     [[nodiscard]] auto total_price() const -> int { return res_1.price + res_2.price; }
   };
 
  private:
 #ifdef DEBUG_FILE_IN_TMP
-  BPlusTree<size_t, Train> train_storage_{"tmp/tr1", "tmp/tr2", "tmp/tr3", "tmp/tr4"};
-  BPlusTree<size_t, Trade> trade_storage_{"tmp/trd1", "tmp/trd2", "tmp/trd3", "tmp/trd4"};
-  BPlusTree<size_t, Record> station_storage_{"tmp/st1", "tmp/st2", "tmp/st3", "tmp/st4"};
+  MyBPlusTree<size_t, Seat> seat_storage_{"tmp/se1", "tmp/se2", "tmp/se3", "tmp/se4"};
+  MyBPlusTree<size_t, Train> train_storage_{"tmp/tr1","tmp/tr2","tmp/tr3","tmp/tr4"};
+  BPT<size_t, Trade> trade_storage_{"tmp/trd", 0, 300, 30};
+  BPT<size_t, Record> station_storage_{"tmp/st", 0, 300, 30};
 #else
-  BPlusTree<size_t, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
-  BPlusTree<size_t, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
-  BPlusTree<size_t, Record> station_storage_{"st1", "st2", "st3", "st4"};
-  BPlusTree<size_t, Seat> seat_storage_{"se1", "se2", "se3", "se4"};
+  //  MyBPlusTree<size_t, Train> train_storage_{"tr1", "tr2", "tr3", "tr4"};
+  //  MyBPlusTree<size_t, Trade> trade_storage_{"trd1", "trd2", "trd3", "trd4"};
+  //  MyBPlusTree<size_t, Record> station_storage_{"st1", "st2", "st3", "st4"};
+  MyBPlusTree<size_t, Seat> seat_storage_{"se1", "se2", "se3", "se4"};
+  MyBPlusTree<size_t, Train> train_storage_{"tr1","tr2","tr3","tr4"};
+  BPT<size_t, Trade> trade_storage_{"trd", 0, 100, 30};
+  BPT<size_t, Record> station_storage_{"st", 0, 100, 30};
+
 #endif
   QueueSystem q_sys_;
   ManagementSystem *m_sys_{};
@@ -160,12 +168,12 @@ class TrainSystem {
    * debugging functions
    */
 #ifdef DEBUG_FILE_IN_TMP
-  void print_queue() {
-    std::cout << "user_name train_id station_index_1 station_index_2 date_index num trade_index\n";
-    for (auto it = q_sys_.begin(); it != q_sys_.end(); ++it) {
-      std::cout << *it;
-    }
-  }
+//  void print_queue() {
+//    std::cout << "user_name train_id station_index_1 station_index_2 date_index num trade_index\n";
+//    for (auto it = q_sys_.begin(); it != q_sys_.end(); ++it) {
+//      std::cout << *it;
+//    }
+//  }
 #endif
 };
 }  // namespace CrazyDave

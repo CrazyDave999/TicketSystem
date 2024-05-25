@@ -3,9 +3,10 @@
 #include <iostream>
 #include <optional>
 #include <string>
+#include "BPT.hpp"
 #include "common/utils.hpp"
-#include "data_structures/BPT.hpp"
-#include "data_structures/linked_hashmap.h"
+#include "linked_hashmap.h"
+#include "storage/index/b_plus_tree.h"
 namespace CrazyDave {
 class AccountSystem;
 class Account {
@@ -29,11 +30,13 @@ class ManagementSystem;
 class AccountSystem {
  private:
 #ifdef DEBUG_FILE_IN_TMP
-  BPlusTree<size_t , Account> account_storage_{"tmp/ac1", "tmp/ac2", "tmp/ac3", "tmp/ac4"};
+  BPT<size_t, Account> account_storage_{"tmp/ac", 0, 300, 30};
 #else
-  BPlusTree<size_t , Account> account_storage_{"ac1", "ac2", "ac3", "ac4"};
+  //  MyBPlusTree<size_t, Account> account_storage_{"ac1", "ac2", "ac3", "ac4"};
+  BPT<size_t, Account> account_storage_{"ac", 0, 100, 30};
+
 #endif
-  linked_hashmap<size_t , int> login_list_;
+  linked_hashmap<size_t, int> login_list_;
   ManagementSystem *m_sys_{};
 #ifdef DEBUG_FILE_IN_TMP
   File header_{"tmp/hd"};

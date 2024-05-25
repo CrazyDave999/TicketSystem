@@ -15,6 +15,7 @@ Train::Train(const std::string &train_id, int seat_num, const vector<std::string
   int price_sum = 0;
   for (int i = 0; i < station_num_; ++i) {
     stations_[i] = stations[i];
+    //    const char *s= stations_[i].c_str();
     prices_[i] = price_sum;
     if (i < station_num_ - 1) {
       price_sum += prices[i];
@@ -98,7 +99,7 @@ auto TrainSystem::query_train(const std::string &train_id, const Date &date) -> 
 
   std::cout << train.train_id_ << " " << train.type_ << "\n";
   DateTimeRange start_time{{date, {}}, {date, {}}};
-  if(!train.is_released_){
+  if (!train.is_released_) {
     for (int i = 0; i < train.station_num_; ++i) {
       std::cout << train.stations_[i] << " " << start_time + train.time_ranges_[i] << " " << train.prices_[i] << " ";
       if (i < train.station_num_ - 1) {
@@ -351,6 +352,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   if (!m_sys_->check_is_login(user_name)) {
     return false;
   }
+
   auto train_hs = HashBytes(train_id.c_str());
   vector<Train> train_vec;
   train_storage_.find(train_hs, train_vec);
@@ -366,6 +368,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   seat_storage_.find(train_hs, seat_vec);
   auto &seat_num = seat_vec[0].seat_num_;
   for (int i = 0; i < train.station_num_; ++i) {
+    //    const char *s=train.stations_[i].c_str();
     if (train.stations_[i] == station_2) {
       i2 = i;
       break;
@@ -509,9 +512,9 @@ auto TrainSystem::query_order(const std::string &user_name) -> bool {
   return true;
 }
 void TrainSystem::clear() {
-  train_storage_.clear();
-  trade_storage_.clear();
-  station_storage_.clear();
+  //  train_storage_.clear();
+  //  trade_storage_.clear();
+  //  station_storage_.clear();
   q_sys_.reset();
 }
 void TrainSystem::load_management_system(ManagementSystem *m_sys) { m_sys_ = m_sys; }
