@@ -10,7 +10,7 @@ int main() {
   std::ios::sync_with_stdio(false);
 #ifdef DEBUG_FILE_IN_TMP
   //  system("rm -rf ./tmp/*");
-  std::freopen("../test/testcases/basic_2/2.in", "r", stdin);
+  //  std::freopen("../test/testcases/pressure_3_easy/63.in", "r", stdin);
   //  std::freopen("../tracking", "r", stdin);
   std::freopen("../output.txt", "w", stdout);
 #endif

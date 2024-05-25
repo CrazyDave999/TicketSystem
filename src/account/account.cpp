@@ -101,12 +101,11 @@ auto AccountSystem::modify_profile(const std::string &cur_user_name, const std::
   if (cur_user_name != user_name && cur_user.privilege_ <= user.privilege_) {
     return false;
   }
-
+  if (privilege.has_value() && privilege >= cur_user.privilege_) {
+    return false;
+  }
   account_storage_.remove(user_hs, user);
   if (privilege.has_value()) {
-    if (privilege >= cur_user.privilege_) {
-      return false;
-    }
     user.privilege_ = privilege.value();
   }
   if (password.has_value()) {

@@ -3,7 +3,7 @@
 
 // #define DEBUG_QUERY_TRANSFER
 // #define DEBUG_BUY_TICKET
-//#define DEBUG_FILE_IN_TMP
+// #define DEBUG_FILE_IN_TMP
 // #define DEBUG_TRACKING
 namespace CrazyDave {
 static constexpr int DAY_NUM[13] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31};

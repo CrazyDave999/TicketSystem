@@ -352,7 +352,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   auto train_hs = HashBytes(train_id.c_str());
   Train train;
   t_io_.read_train(train_hs, train);
-  if (!train.is_released_) {
+  if (!train.is_released_ || num > train.seat_num_) {
     return false;
   }
 

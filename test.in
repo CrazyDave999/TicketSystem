@@ -1,9 +1,45 @@
-[1291] add_user -g 4 -n 古米 -u Gummy -p 5v$z!6uh1m0 -c BluePoison -m new.conditions@of.oppression
-[1295] login -p 5v$z!6uh1m0 -u Gummy
-[3403] add_train -x 13:47 -d 07-12|08-16 -y Z -p 236|3790|4547|3102|4803|738|2007|256|1567|1607|359|3041 -i LeavesofGrass -m 28660 -o 5|3|9|8|10|9|5|8|10|4|10 -n 13 -s 北京市|重庆市南川市|吉林省图们市|浙江省瑞安市|福建省莆田市|山东省栖霞市|福建省漳州市|河北省晋州市|广东省罗定市|四川省德阳市|天津市|广东省江门市|河北省石家庄市 -t 134|33|193|91|159|92|197|45|166|27|79|55
-[3404] release_train -i LeavesofGrass
-[3573] buy_ticket -d 08-06 -f 四川省德阳市 -u Gummy -i LeavesofGrass -q true -n 627 -t 河北省石家庄市
-[3666] query_ticket -p time -s 北京市 -d 08-05 -t 天津市
-[3700] exit
-
-
+[5] add_user -n 奥斯卡 -m foo@bar.com -c cur -g 10 -p awsl -u I_am_the_admin
+[9] login -p awsl -u I_am_the_admin
+[10] query_profile -u I_am_the_admin -c I_am_the_admin
+[11] add_user -g 8 -n 锡兰 -p o0ahmZcHPbTD-6sV -c I_am_the_admin -u Ceylon -m MANIFESTO.OF@THE.COMMUNIST
+[10] query_profile -u I_am_the_admin -c I_am_the_admin
+[12] login -p o0ahmZcHPbTD-6sV -u Ceylon
+[10] query_profile -u I_am_the_admin -c I_am_the_admin
+[20] query_profile -c Ceylon -u I_am_the_admin
+[10] query_profile -u I_am_the_admin -c I_am_the_admin
+[22] modify_profile -u I_am_the_admin -c I_am_the_admin -n 奥斯 -p rH2qt9!fdn -g 10
+[10] query_profile -u I_am_the_admin -c I_am_the_admin
+[32] add_user -c Ceylon -g 7 -p 57ZAArwZ8ZQB -n 刻俄柏 -u Ceobe -m PARTY.A.spectre@is.haunting
+[10] query_profile -u I_am_the_admin -c I_am_the_admin
+[36] login -u Ceobe -p 57ZAArwZ8ZQB
+[10] query_profile -u I_am_the_admin -c I_am_the_admin
+[44] query_profile -u Ceylon -c I_am_the_admin
+[51] query_profile -u Ceylon -c I_am_the_admin
+[59] add_user -m Europethe.spectre@of.Communism -n 白雪 -u ShiraYuki -g 7 -p !1juWg2cG5_2X -c Ceylon
+[62] login -p !1juWg2cG5_2X -u ShiraYuki
+[67] add_user -p Mi1WawOryK6Z6 -u Gravel -m All.the.Powers@of.old -g 5 -c Ceobe -n 砾砾
+[72] login -p Mi1WawOryK6Z6 -u Gravel
+[73] query_profile -u I_am_the_admin -c ShiraYuki
+[78] query_profile -u I_am_the_admin -c Ceylon
+[79] query_profile -c Ceylon -u Ceobe
+[85] logout -u Ceobe
+[95] query_profile -u I_am_the_admin -c ShiraYuki
+[100] query_profile -c Ceylon -u I_am_the_admin
+[104] add_user -n 猎蜂 -u Beehunter -c Gravel -g 3 -m Europe.have@entered.into -p 7g_2iJ1LkYy7PC$2c7j8
+[114] login -p 7g_2iJ1LkYy7PC$2c7j8 -u Beehunter
+[117] add_user -m a.holy.alliance@to.exorcise -p 4VXEcv_w4e -n 断罪者 -c Gravel -u Conviction -g 4
+[119] login -u Conviction -p 4VXEcv_w4e
+[126] add_user -c Ceylon -n 清道夫 -m this.spectre@Pope.and -g 7 -p rQDBY3ty6VX -u Scavenger
+[131] login -u Scavenger -p rQDBY3ty6VX
+[132] query_profile -u Conviction -c I_am_the_admin
+[139] add_user -c Gravel -n 夜刀 -g 4 -u Yato -p BIWQ$XLPpkJB9Epg7 -m Czar.Metternich@and.Guizot
+[148] login -u Yato -p BIWQ$XLPpkJB9Epg7
+[158] query_profile -c Ceylon -u Yato
+[168] login -u Ceobe -p 57ZAArwZ8ZQB
+[175] query_profile -u Yato -c Ceobe
+[183] add_user -p 2hPe7cknZM6gEkXj5pkP -g 3 -c Conviction -m French.Radicals@and.German -u Blaze -n 煌煌
+[185] login -u Blaze -p 2hPe7cknZM6gEkXj5pkP
+[195] add_user -n 微风 -p mFMZtnRipp!XhVqO -u Breeze -c Blaze -m policespies@Where.is -g 2
+[200] login -p mFMZtnRipp!XhVqO -u Breeze
+[207] query_profile -u Yato -c I_am_the_admin
+[210] exit

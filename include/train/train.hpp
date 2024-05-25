@@ -51,9 +51,15 @@ struct Seat {
 };
 class TrainIO {
  private:
+#ifdef DEBUG_FILE_IN_TMP
+  BPT<size_t , size_t> index_storage_{"tmp/idx", 0, 15, 5};
+  File train_storage_{"tmp/trn_st"};
+  File seat_storage_{"tmp/s_st"};
+#else
   BPT<size_t , size_t> index_storage_{"idx", 0, 15, 5};
   File train_storage_{"trn_st"};
   File seat_storage_{"s_st"};
+#endif
   size_t size{};
   static const size_t OFFSET = sizeof(size_t);
   static const size_t SIZE_OF_TRAIN = sizeof(Train);

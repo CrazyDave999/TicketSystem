@@ -19,7 +19,7 @@ auto ManagementSystem::execute_line(const std::string &line) -> bool {
   enum OutputType { SIMPLE, F_SIMPLE, NORMAL } output_type = SIMPLE;
   bool success = false;
   auto &command = tokens[1];
-  bool flag=tokens[0]=="[3403]";
+  bool flag=tokens[0]=="[207]";
   if (command == "add_user") {
     std::optional<std::string> cur_user_name;
     std::optional<int> privilege;
