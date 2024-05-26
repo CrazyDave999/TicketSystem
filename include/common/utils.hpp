@@ -121,6 +121,7 @@ class pair {
   explicit pair(const pair<U1, U2> &other) : first(other.first), second(other.second) {}
   template <class U1, class U2>
   explicit pair(pair<U1, U2> &&other) : first(other.first), second(other.second) {}
+  auto operator!=(const pair &rhs) const -> bool { return first != rhs.first || second != rhs.second; }
   auto operator<(const pair &rhs) const -> bool {
     if (first != rhs.first) {
       return first < rhs.first;
@@ -251,8 +252,8 @@ class File {
 
 struct Time {
   static const Time INVALID_TIME;
-  int hour_{};
-  int minute_{};
+  short hour_{};
+  short minute_{};
   Time() = default;
   Time(int hour, int minute) : hour_(hour), minute_(minute) {}
   explicit Time(const std::string &str) {
@@ -320,8 +321,8 @@ struct Time {
 struct Date {
   static const Date FIRST_DATE;
   static const Date INVALID_DATE;
-  int month_{};
-  int day_{};
+  short month_{};
+  short day_{};
   Date() = default;
   Date(int _month, int _day) : month_(_month), day_(_day) {}
   explicit Date(const std::string &str) {

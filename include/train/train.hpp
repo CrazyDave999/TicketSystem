@@ -2,6 +2,7 @@
 #define TICKET_SYSTEM_TRAIN_HPP
 #include <iostream>
 #include <string>
+#include <utility>
 #include "common/management_system.hpp"
 #include "common/utils.hpp"
 
@@ -17,111 +18,116 @@ enum class Status { SUCCESS, PENDING, REFUNDED };
 class TrainSystem;
 class QueueSystem;
 class TrainIO;
-
-class Train {
+class TrainMeta {
+  friend TrainSystem;
+  friend TrainIO;
+  String<20> train_id_{};
+  int station_num_{};
+  int seat_num_{};
+  DateRange sale_date_range_{};
+  char type_{};
+  bool is_released_{};
+  size_t index_{};  // the position in storage file
+ public:
+  TrainMeta() = default;
+  TrainMeta(const std::string &train_id, int station_num, int seat_num, DateRange sale_date_range, char type)
+      : train_id_(train_id),
+        station_num_(station_num),
+        seat_num_(seat_num),
+        sale_date_range_(std::move(sale_date_range)),
+        type_(type) {}
+  auto operator<(const TrainMeta &rhs) const -> bool { return train_id_ < rhs.train_id_; }
+};
+class TrainArray {
   friend TrainSystem;
   friend TrainIO;
 
  private:
-  String<20> train_id_{};
-  int station_num_{};
-  String<44> stations_[100]{};  // [station]
-  int seat_num_{};
+  String<30> stations_[100]{};      // [station]
   int prices_[99]{};                // [station]
   DateTimeRange time_ranges_[100];  // [station], {arrival time, leaving time},
                                     // record the offset time from the start_time
-  DateRange sale_date_range_{};
-  char type_{};
-  bool is_released_{};
-  size_t index_{}; // the position in storage file
 
  public:
-  Train() = default;
-  Train(const std::string &train_id, int seat_num, const vector<std::string> &stations, const vector<int> &prices,
-        const Time &start_time, const vector<int> &travel_times, const vector<int> &stop_over_times,
-        DateRange sale_date, char type);
+  TrainArray() = default;
+  TrainArray(int station_num, const vector<std::string> &stations, const vector<int> &prices, const Time &start_time,
+             const vector<int> &travel_times, const vector<int> &stop_over_times) {
+    DateTimeRange time_range{DateTime::INVALID_DATE_TIME, {{}, start_time}};
+    int price_sum = 0;
+    for (int i = 0; i < station_num; ++i) {
+      stations_[i] = stations[i];
+      prices_[i] = price_sum;
+      if (i < station_num - 1) {
+        price_sum += prices[i];
+      }
+      if (i == station_num - 1) {
+        time_range.second = DateTime::INVALID_DATE_TIME;
+      }
+      time_ranges_[i] = time_range;
+      if (i < station_num - 1) {
+        time_range.first = time_range.second + travel_times[i];
+      }
+      if (i < station_num - 2) {
+        time_range.second = time_range.first + stop_over_times[i];
+      }
+    }
+  }
 
-  auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
+  //  auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
 };
-struct Seat {
-  size_t index_{};
-  int seat_num_[100][92]{};  // [station][date] date 是从始发站出发的日期 index
+struct SeatOfDate {
+  int date_index_{};
+  int seat_num_[100]{};  // [station][date] date 是从始发站出发的日期 index
+  auto operator!=(const SeatOfDate &rhs) const -> bool { return date_index_ != rhs.date_index_; }
+  auto operator<(const SeatOfDate &rhs) const -> bool { return date_index_ < rhs.date_index_; }
 };
 class TrainIO {
  private:
 #ifdef DEBUG_FILE_IN_TMP
-  BPT<size_t , size_t> index_storage_{"tmp/idx", 0, 15, 5};
+  BPT<size_t, size_t> index_storage_{"tmp/idx", 0, 15, 5};
   File train_storage_{"tmp/trn_st"};
   File seat_storage_{"tmp/s_st"};
 #else
-  BPT<size_t , size_t> index_storage_{"idx", 0, 60, 5};
-  File train_storage_{"trn_st"};
-  File seat_storage_{"s_st"};
+  BPT<size_t, size_t> index_storage_{"idx", 0, 60, 5};
+  File array_storage_{"arr_st"};
 #endif
   size_t size{};
   static const size_t OFFSET = sizeof(size_t);
-  static const size_t SIZE_OF_TRAIN = sizeof(Train);
-  static const size_t SIZE_OF_SEAT = sizeof(Seat);
+  static const size_t SIZE_OF_ARRAY = sizeof(TrainArray);
 
  public:
   TrainIO() {
-    train_storage_.open();
-    seat_storage_.open();
-    if (train_storage_.get_is_new()) {
+    array_storage_.open();
+    if (array_storage_.get_is_new()) {
       size = 0;
     } else {
-      train_storage_.seekg(0);
-      train_storage_.read(size);
+      array_storage_.seekg(0);
+      array_storage_.read(size);
     }
   }
   ~TrainIO() {
-    train_storage_.seekp(0);
-    train_storage_.write(size);
-    train_storage_.close();
-    seat_storage_.close();
+    array_storage_.seekp(0);
+    array_storage_.write(size);
+    array_storage_.close();
   }
-  bool check_exist(size_t train_hs) {
-    vector<size_t> index_vec;
-    index_storage_.find(train_hs, index_vec);
-    return !index_vec.empty();
-  }
-  void insert_train(size_t train_hs,Train &train) {
+
+  void insert_array(size_t train_hs,TrainMeta&meta, TrainArray &array) {
     size_t index = size++;
     index_storage_.insert(train_hs, index);
-    train.index_ = index;
-    train_storage_.seekp(OFFSET + index * SIZE_OF_TRAIN);
-    train_storage_.write(train);
+    meta.index_ = index;
+    array_storage_.seekp(OFFSET + index * SIZE_OF_ARRAY);
+    array_storage_.write(array);
   }
-  void insert_seat(size_t index,Seat &seat) {
-    seat.index_=index;
-    seat_storage_.seekp(OFFSET + index * SIZE_OF_SEAT);
-    seat_storage_.write(seat);
+
+  void remove_array(size_t train_hs, size_t index) {
+    index_storage_.remove(train_hs, index);
   }
-  void remove_train(size_t train_hs,const Train &train) {
-    index_storage_.remove(train_hs, train.index_);
+
+  void read_array(size_t index, TrainArray &array) {
+    array_storage_.seekg(OFFSET + index * SIZE_OF_ARRAY);
+    array_storage_.read(array);
   }
-  void read_train(size_t train_hs, Train &train) {
-    vector<size_t> index_vec;
-    index_storage_.find(train_hs, index_vec);
-    size_t &index = index_vec[0];
-    train_storage_.seekg(OFFSET + index * SIZE_OF_TRAIN);
-    train_storage_.read(train);
-  }
-  void write_train(const Train &train) {
-    train_storage_.seekp(OFFSET + train.index_ * SIZE_OF_TRAIN);
-    train_storage_.write(train);
-  }
-  void read_seat(size_t train_hs, Seat &seat) {
-    vector<size_t> index_vec;
-    index_storage_.find(train_hs, index_vec);
-    size_t &index = index_vec[0];
-    seat_storage_.seekg(OFFSET + index * SIZE_OF_SEAT);
-    seat_storage_.read(seat);
-  }
-  void write_seat(const Seat &seat) {
-    seat_storage_.seekp(OFFSET + seat.index_ * SIZE_OF_SEAT);
-    seat_storage_.write(seat);
-  }
+
 };
 class TrainSystem {
   struct Record {
@@ -135,8 +141,8 @@ class TrainSystem {
     String<20> train_id_{};
     DateTime leaving_time_{};
     DateTime arrival_time_{};
-    String<44> station_1_{};
-    String<44> station_2_{};
+    String<30> station_1_{};
+    String<30> station_2_{};
     int station_index_1_{};
     int station_index_2_{};
     int price_{};
@@ -146,7 +152,7 @@ class TrainSystem {
    public:
     Trade() = default;
     Trade(int time_stamp, const Status &status, const String<20> &train_id, const DateTime &leaving_time,
-          const DateTime &arrival_time, const String<44> &station_1, int station_index_1, const String<44> &station_2,
+          const DateTime &arrival_time, const String<30> &station_1, int station_index_1, const String<30> &station_2,
           int station_index_2, int price, int num, int date_index)
         : time_stamp_(time_stamp),
           status_(status),
@@ -190,7 +196,7 @@ class TrainSystem {
   struct TransferResult {
     TicketResult res_1{};
     TicketResult res_2{};
-    String<44> mid_station{};
+    String<30> mid_station{};
     [[nodiscard]] auto total_time() const -> int { return res_2.range.second - res_1.range.first; }
     [[nodiscard]] auto total_price() const -> int { return res_1.price + res_2.price; }
   };
@@ -203,8 +209,10 @@ class TrainSystem {
   BPT<size_t, Record> station_storage_{"tmp/st", 0, 300, 30};
 #else
 
+  BPT<size_t, TrainMeta> meta_storage_{"mta", 0, 60, 5};
   BPT<size_t, Trade> trade_storage_{"trd", 0, 60, 5};
   BPT<size_t, Record> station_storage_{"st", 0, 60, 5};
+  BPT<pair<size_t ,int>,SeatOfDate> seat_storage_{"se", 0, 600, 5};
 
 #endif
   QueueSystem q_sys_;
