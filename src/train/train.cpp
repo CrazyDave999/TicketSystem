@@ -48,7 +48,7 @@ auto TrainSystem::release_train(const std::string &train_id) -> bool {
   meta_storage_.insert(train_hs, meta);
   TrainArray array;
   t_io_.read_array(meta.index_, array);
-  for (int i = 0; i < meta.station_num_; ++i) {
+  for (short i = 0; i < meta.station_num_; ++i) {
     auto station_hs = HashBytes(array.stations_[i].c_str());
     station_storage_.insert(station_hs, {train_hs, i, array.time_ranges_[i], array.prices_[i]});
   }
@@ -362,13 +362,13 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
 
   TrainArray array;
   t_io_.read_array(meta.index_, array);
-  int i1 = -1, i2 = -1, j;
+  short i1 = -1, i2 = -1, j;
   int min_num = meta.seat_num_;
   Date depart_date;
 
   vector<DateInfo> seat_vec;
 
-  for (int i = 0; i < meta.station_num_; ++i) {
+  for (short i = 0; i < meta.station_num_; ++i) {
     if (array.stations_[i] == station_2) {
       i2 = i;
       break;

@@ -1,4 +1,5 @@
 #include "account/account.hpp"
+
 namespace CrazyDave {
 Account::Account(const std::string &user_name, const std::string &password, const std::string &name,
                  const std::string &mail_addr, int privilege)

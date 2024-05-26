@@ -396,7 +396,7 @@ struct Date {
     res += day;
     return res;
   }
-  auto operator-(const Date &rhs) const -> int { return DAY_PREFIX[month_] + day_ - DAY_PREFIX[rhs.month_] - rhs.day_; }
+  auto operator-(const Date &rhs) const -> short { return DAY_PREFIX[month_] + day_ - DAY_PREFIX[rhs.month_] - rhs.day_; }
   auto operator-(int day) const -> Date {
     Date res = *this;
     res.day_ -= day;

@@ -1,7 +1,6 @@
 #ifndef BPT_PRO_LIST_H
 #define BPT_PRO_LIST_H
 #include <cstddef>
-#include <list>
 namespace CrazyDave {
 template <typename T>
 class list {

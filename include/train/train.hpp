@@ -274,17 +274,6 @@ class TrainSystem {
   auto refund_ticket(const std::string &user_name, int n) -> bool;
   void clear();
 
-  /*
-   * debugging functions
-   */
-#ifdef DEBUG_FILE_IN_TMP
-//  void print_queue() {
-//    std::cout << "user_name train_id station_index_1 station_index_2 date_index num trade_index\n";
-//    for (auto it = q_sys_.begin(); it != q_sys_.end(); ++it) {
-//      std::cout << *it;
-//    }
-//  }
-#endif
 };
 
 }  // namespace CrazyDave

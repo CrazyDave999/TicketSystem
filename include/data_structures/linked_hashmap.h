@@ -1,6 +1,5 @@
 #ifndef BPT_PRO_LINKED_HASHMAP_HPP
 #define BPT_PRO_LINKED_HASHMAP_HPP
-#include <unordered_map>
 #include "../common/utils.hpp"
 namespace CrazyDave {
 template <class Key, class T, class Hash = std::hash<Key>, class Equal = std::equal_to<Key> >

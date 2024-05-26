@@ -16,9 +16,5 @@ int main() {
 #endif
 
   m_sys.run();
-
-#ifdef DEBUG_FILE_IN_TMP
-//  system("rm -rf ./tmp/*");
-#endif
   return 0;
 }

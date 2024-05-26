@@ -1,5 +1,6 @@
 #ifndef TICKETSYSTEM_QUEUE_SYSTEM_HPP
 #define TICKETSYSTEM_QUEUE_SYSTEM_HPP
+
 #include "common/utils.hpp"
 #include "data_structures/list.h"
 namespace CrazyDave {
@@ -13,8 +14,8 @@ class QueueSystem {
     int num_{};
     int trade_index_{};
     Query() = default;
-    Query(size_t user_hs, size_t train_hs, int station_index_1, int station_index_2,
-          int date_index, int num, int trade_index)
+    Query(size_t user_hs, size_t train_hs, short station_index_1, short station_index_2,
+          short date_index, int num, int trade_index)
         : user_hs_(user_hs),
           train_hs_{train_hs},
           station_index_1_{station_index_1},
@@ -22,11 +23,6 @@ class QueueSystem {
           date_index_{date_index},
           num_{num},
           trade_index_{trade_index} {}
-//    friend std::ostream &operator<<(std::ostream &os, const Query &query) {
-//      os << query.user_name_ << ' ' << query.train_id_ << ' ' << query.station_index_1_ << ' '
-//         << query.station_index_2_ << ' ' << query.date_index_ << ' ' << query.num_ << ' ' << query.trade_index_ <<"\n";
-//      return os;
-//    }
   };
 
  private:
