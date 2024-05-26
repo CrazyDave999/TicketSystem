@@ -22,12 +22,12 @@ class TrainMeta {
   friend TrainSystem;
   friend TrainIO;
   String<20> train_id_{};
-  int station_num_{};
+  short station_num_{};
   int seat_num_{};
   DateRange sale_date_range_{};
   char type_{};
   bool is_released_{};
-  size_t index_{};  // the position in storage file
+  int index_{};  // the position in storage file
  public:
   TrainMeta() = default;
   TrainMeta(const std::string &train_id, int station_num, int seat_num, DateRange sale_date_range, char type)
@@ -76,7 +76,7 @@ class TrainArray {
   //  auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
 };
 struct DateInfo {
-  int date_index_{};
+  short date_index_{};
   int seat_num_[100]{};  // [station][date] date 是从始发站出发的日期 index
   auto operator!=(const DateInfo &rhs) const -> bool { return date_index_ != rhs.date_index_; }
   auto operator<(const DateInfo &rhs) const -> bool { return date_index_ < rhs.date_index_; }
@@ -89,7 +89,7 @@ class TrainIO {
   File train_storage_{"tmp/trn_st"};
   File seat_storage_{"tmp/s_st"};
 #else
-  BPT<size_t, size_t> index_storage_{"idx_st", 0, 60, 5};
+  BPT<size_t, size_t> index_storage_{"idx_st", 0, 15, 5};
   File array_storage_{"arr_st"};
   File garbage_storage_{"arr_gb"};
 #endif
@@ -157,7 +157,7 @@ class TrainIO {
 class TrainSystem {
   struct Record {
     size_t train_hs{};
-    int index_{};
+    short index_{};
     DateTimeRange time_range_{};
     int price_{};
     auto operator<(const Record &rhs) const -> bool { return train_hs < rhs.train_hs; }
@@ -170,11 +170,11 @@ class TrainSystem {
     DateTime arrival_time_{};
     String<30> station_1_{};
     String<30> station_2_{};
-    int station_index_1_{};
-    int station_index_2_{};
+    short station_index_1_{};
+    short station_index_2_{};
     int price_{};
     int num_{};
-    int date_index_{};
+    short date_index_{};
 
    public:
     Trade() = default;

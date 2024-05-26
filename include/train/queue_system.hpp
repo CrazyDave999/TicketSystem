@@ -7,9 +7,9 @@ class QueueSystem {
   struct Query {
     size_t user_hs_{};
     size_t train_hs_{};
-    int station_index_1_{};
-    int station_index_2_{};
-    int date_index_{};
+    short station_index_1_{};
+    short station_index_2_{};
+    short date_index_{};
     int num_{};
     int trade_index_{};
     Query() = default;
