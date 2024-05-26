@@ -13,10 +13,10 @@ class Account {
   friend AccountSystem;
 
  private:
-  String<20> user_name_{};
-  String<30> password_{};
-  String<20> name_{};
-  String<30> mail_addr_{};
+  String<21> user_name_{};
+  String<31> password_{};
+  String<21> name_{};
+  String<31> mail_addr_{};
   int privilege_{};
 
  public:

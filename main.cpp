@@ -1,4 +1,3 @@
-#pragma GCC optimize(2)
 #include "account/account.hpp"
 #include "common/management_system.hpp"
 #include "train/train.hpp"
