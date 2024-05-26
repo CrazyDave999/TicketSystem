@@ -13,10 +13,10 @@ class Account {
   friend AccountSystem;
 
  private:
-  String<21> user_name_{};
-  String<31> password_{};
-  String<21> name_{};
-  String<31> mail_addr_{};
+  String<20> user_name_{};
+  String<30> password_{};
+  String<20> name_{};
+  String<30> mail_addr_{};
   int privilege_{};
 
  public:
@@ -32,7 +32,6 @@ class AccountSystem {
 #ifdef DEBUG_FILE_IN_TMP
   BPT<size_t, Account> account_storage_{"tmp/ac", 0, 300, 30};
 #else
-  //  MyBPlusTree<size_t, Account> account_storage_{"ac1", "ac2", "ac3", "ac4"};
   BPT<size_t, Account> account_storage_{"ac", 0, 60, 5};
 
 #endif

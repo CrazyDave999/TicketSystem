@@ -1,6 +1,4 @@
 #include "train/train.hpp"
-
-#include <utility>
 namespace CrazyDave {
 
 TrainSystem::TrainSystem(ManagementSystem *m_sys) : m_sys_(m_sys) {}

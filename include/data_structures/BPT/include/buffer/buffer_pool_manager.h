@@ -30,7 +30,7 @@ class BufferPoolManager {
   ~BufferPoolManager();
 
   /** @brief Return the size (number of frames) of the buffer pool. */
-  auto GetPoolSize() const -> size_t { return pool_size_; }
+  [[nodiscard]] auto GetPoolSize() const -> size_t { return pool_size_; }
 
   /** @brief Return the pointer to all the pages in the buffer pool. */
   auto GetPages() -> Page * { return pages_; }
