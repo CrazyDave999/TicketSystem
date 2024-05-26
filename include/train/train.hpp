@@ -91,36 +91,64 @@ class TrainIO {
 #else
   BPT<size_t, size_t> index_storage_{"idx", 0, 60, 5};
   File array_storage_{"arr_st"};
+  File garbage_storage_{"arr_gb"};
 #endif
-  size_t size{};
   static const size_t OFFSET = sizeof(size_t);
   static const size_t SIZE_OF_ARRAY = sizeof(TrainArray);
+  size_t max_index_{0};
+  list<size_t> queue_{};
 
  public:
   TrainIO() {
     array_storage_.open();
-    if (array_storage_.get_is_new()) {
-      size = 0;
-    } else {
-      array_storage_.seekg(0);
-      array_storage_.read(size);
+    garbage_storage_.open();
+    if (!garbage_storage_.get_is_new()) {
+      garbage_storage_.seekg(0);
+      size_t size;
+      garbage_storage_.read(size);
+      garbage_storage_.read(max_index_);
+      for (size_t i = 0; i < size; ++i) {
+        int index;
+        garbage_storage_.read(index);
+        queue_.push_back(index);
+      }
     }
   }
   ~TrainIO() {
-    array_storage_.seekp(0);
-    array_storage_.write(size);
+    garbage_storage_.seekp(0);
+    size_t size = queue_.size();
+    garbage_storage_.write(size);
+    garbage_storage_.write(max_index_);
+    for (size_t i = 0; i < size; ++i) {
+      size_t index = queue_.back();
+      queue_.pop_back();
+      garbage_storage_.write(index);
+    }
     array_storage_.close();
+    garbage_storage_.close();
   }
 
+  auto allocate_index() -> size_t {
+    if (!queue_.empty()) {
+      size_t index = queue_.front();
+      queue_.pop_front();
+      return index;
+    }
+    return ++max_index_;
+  }
+  void deallocate_index(size_t index) { queue_.push_back(index); }
   void insert_array(size_t train_hs, TrainMeta &meta, TrainArray &array) {
-    size_t index = size++;
+    size_t index = allocate_index();
     index_storage_.insert(train_hs, index);
     meta.index_ = index;
     array_storage_.seekp(OFFSET + index * SIZE_OF_ARRAY);
     array_storage_.write(array);
   }
 
-  void remove_array(size_t train_hs, size_t index) { index_storage_.remove(train_hs, index); }
+  void remove_array(size_t train_hs, size_t index) {
+    index_storage_.remove(train_hs, index);
+    deallocate_index(index);
+  }
 
   void read_array(size_t index, TrainArray &array) {
     array_storage_.seekg(OFFSET + index * SIZE_OF_ARRAY);
@@ -212,7 +240,7 @@ class TrainSystem {
   BPT<size_t, TrainMeta> meta_storage_{"mta", 0, 60, 5};
   BPT<size_t, Trade> trade_storage_{"trd", 0, 60, 5};
   BPT<size_t, Record> station_storage_{"st", 0, 60, 5};
-  BPT<pair<size_t, int>, DateInfo> date_info_storage_{"se", 0, 200, 5};
+  BPT<pair<size_t, int>, DateInfo> date_info_storage_{"se", 0, 100, 5};
 
 #endif
   QueueSystem q_sys_;

@@ -66,7 +66,7 @@ class MyDiskManager {
   MyFile *data_file_{nullptr};
   MyFile *garbage_file{nullptr};  // 第一位size_，第二位max_page_id_
 
-    list<page_id_t> queue_{};
+  list<page_id_t> queue_{};
   page_id_t max_page_id_{0};
 };
 }  // namespace CrazyDave
