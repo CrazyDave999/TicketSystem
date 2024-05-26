@@ -4,7 +4,7 @@
 #include <string>
 #include "common/management_system.hpp"
 #include "common/utils.hpp"
-#include "data_structures/BPT.hpp"
+
 #include "data_structures/linked_hashmap.h"
 #include "data_structures/vector.h"
 #include "storage/index/b_plus_tree.h"
@@ -44,6 +44,7 @@ class Train {
   auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
 };
 struct Seat {
+  size_t index_{};
   int seat_num_[100][92]{};  // [station][date] date 是从始发站出发的日期 index
 };
 class TrainIO {
@@ -91,15 +92,12 @@ class TrainIO {
     train_storage_.seekp(OFFSET + index * SIZE_OF_TRAIN);
     train_storage_.write(train);
   }
-  void insert_seat(size_t train_hs,const Seat &seat) {
-    vector<size_t> index_vec;
-    index_storage_.find(train_hs, index_vec);
-    size_t &index = index_vec[0];
+  void insert_seat(size_t index,Seat &seat) {
+    seat.index_=index;
     seat_storage_.seekp(OFFSET + index * SIZE_OF_SEAT);
     seat_storage_.write(seat);
   }
-  void remove_train(const Train &train) {
-    auto train_hs = HashBytes(train.train_id_.c_str());
+  void remove_train(size_t train_hs,const Train &train) {
     index_storage_.remove(train_hs, train.index_);
   }
   void read_train(size_t train_hs, Train &train) {
@@ -120,18 +118,15 @@ class TrainIO {
     seat_storage_.seekg(OFFSET + index * SIZE_OF_SEAT);
     seat_storage_.read(seat);
   }
-  void write_seat(size_t train_hs,const Seat &seat) {
-    vector<size_t> index_vec;
-    index_storage_.find(train_hs, index_vec);
-    size_t &index = index_vec[0];
-    seat_storage_.seekp(OFFSET + index * SIZE_OF_SEAT);
+  void write_seat(const Seat &seat) {
+    seat_storage_.seekp(OFFSET + seat.index_ * SIZE_OF_SEAT);
     seat_storage_.write(seat);
   }
 };
 class TrainSystem {
   struct Record {
     size_t train_hs{};
-    int index{};
+    int index_{};
     auto operator<(const Record &rhs) const -> bool { return train_hs < rhs.train_hs; }
   };
   struct Trade {

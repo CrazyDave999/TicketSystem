@@ -3,7 +3,7 @@
 #include <iostream>
 #include <optional>
 #include <string>
-#include "BPT.hpp"
+
 #include "common/utils.hpp"
 #include "linked_hashmap.h"
 #include "storage/index/b_plus_tree.h"

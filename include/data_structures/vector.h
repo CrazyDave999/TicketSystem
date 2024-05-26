@@ -21,8 +21,24 @@ class vector {
     alloc.deallocate(tmp, capacity);
     capacity <<= 1;
   }
+  void insertion_sort(T *arr, int len, bool cmp(const T &, const T &)) {
+    for (int i = 1; i < len; i++) {
+      T key = arr[i];
+      int j = i - 1;
+      while (j >= 0 && cmp(key, arr[j])) {
+        arr[j + 1] = arr[j];
+        j--;
+      }
+      arr[j + 1] = key;
+    }
+  }
+
   void quick_sort(T *arr, int len, bool cmp(const T &, const T &)) {
     if (len <= 1) {
+      return;
+    }
+    if (len <= 10) {
+      insertion_sort(arr, len, cmp);
       return;
     }
     T pi = arr[rand() % len];
