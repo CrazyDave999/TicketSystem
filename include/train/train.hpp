@@ -212,7 +212,7 @@ class TrainSystem {
   BPT<size_t, TrainMeta> meta_storage_{"mta", 0, 60, 5};
   BPT<size_t, Trade> trade_storage_{"trd", 0, 60, 5};
   BPT<size_t, Record> station_storage_{"st", 0, 60, 5};
-  BPT<pair<size_t, int>, DateInfo> date_info_storage_{"se", 0, 600, 5};
+  BPT<pair<size_t, int>, DateInfo> date_info_storage_{"se", 0, 200, 5};
 
 #endif
   QueueSystem q_sys_;
