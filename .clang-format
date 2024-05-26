@@ -5,4 +5,5 @@ ColumnLimit: 120
 
 # Default for clang-8, changed in later clangs. Set explicitly for forwards
 # compatibility for students with modern clangs
+# 噫！好！我过了！
 IncludeBlocks: Preserve
