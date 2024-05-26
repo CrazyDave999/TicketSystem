@@ -89,11 +89,10 @@ class TrainIO {
   File train_storage_{"tmp/trn_st"};
   File seat_storage_{"tmp/s_st"};
 #else
-  BPT<size_t, size_t> index_storage_{"idx", 0, 60, 5};
+  BPT<size_t, size_t> index_storage_{"idx_st", 0, 60, 5};
   File array_storage_{"arr_st"};
   File garbage_storage_{"arr_gb"};
 #endif
-  static const size_t OFFSET = sizeof(size_t);
   static const size_t SIZE_OF_ARRAY = sizeof(TrainArray);
   size_t max_index_{0};
   list<size_t> queue_{};
@@ -108,7 +107,7 @@ class TrainIO {
       garbage_storage_.read(size);
       garbage_storage_.read(max_index_);
       for (size_t i = 0; i < size; ++i) {
-        int index;
+        size_t index;
         garbage_storage_.read(index);
         queue_.push_back(index);
       }
@@ -119,7 +118,7 @@ class TrainIO {
     size_t size = queue_.size();
     garbage_storage_.write(size);
     garbage_storage_.write(max_index_);
-    for (size_t i = 0; i < size; ++i) {
+    while(!queue_.empty()) {
       size_t index = queue_.back();
       queue_.pop_back();
       garbage_storage_.write(index);
@@ -130,18 +129,18 @@ class TrainIO {
 
   auto allocate_index() -> size_t {
     if (!queue_.empty()) {
-      size_t index = queue_.front();
-      queue_.pop_front();
+      size_t index = queue_.back();
+      queue_.pop_back();
       return index;
     }
-    return ++max_index_;
+    return max_index_++;
   }
   void deallocate_index(size_t index) { queue_.push_back(index); }
   void insert_array(size_t train_hs, TrainMeta &meta, TrainArray &array) {
     size_t index = allocate_index();
     index_storage_.insert(train_hs, index);
     meta.index_ = index;
-    array_storage_.seekp(OFFSET + index * SIZE_OF_ARRAY);
+    array_storage_.seekp(index * SIZE_OF_ARRAY);
     array_storage_.write(array);
   }
 
@@ -151,7 +150,7 @@ class TrainIO {
   }
 
   void read_array(size_t index, TrainArray &array) {
-    array_storage_.seekg(OFFSET + index * SIZE_OF_ARRAY);
+    array_storage_.seekg(index * SIZE_OF_ARRAY);
     array_storage_.read(array);
   }
 };
