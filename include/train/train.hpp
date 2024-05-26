@@ -75,12 +75,13 @@ class TrainArray {
 
   //  auto operator<(const Train &rhs) const -> bool { return train_id_ < rhs.train_id_; }
 };
-struct SeatOfDate {
+struct DateInfo {
   int date_index_{};
   int seat_num_[100]{};  // [station][date] date 是从始发站出发的日期 index
-  auto operator!=(const SeatOfDate &rhs) const -> bool { return date_index_ != rhs.date_index_; }
-  auto operator<(const SeatOfDate &rhs) const -> bool { return date_index_ < rhs.date_index_; }
+  auto operator!=(const DateInfo &rhs) const -> bool { return date_index_ != rhs.date_index_; }
+  auto operator<(const DateInfo &rhs) const -> bool { return date_index_ < rhs.date_index_; }
 };
+
 class TrainIO {
  private:
 #ifdef DEBUG_FILE_IN_TMP
@@ -111,7 +112,7 @@ class TrainIO {
     array_storage_.close();
   }
 
-  void insert_array(size_t train_hs,TrainMeta&meta, TrainArray &array) {
+  void insert_array(size_t train_hs, TrainMeta &meta, TrainArray &array) {
     size_t index = size++;
     index_storage_.insert(train_hs, index);
     meta.index_ = index;
@@ -119,20 +120,19 @@ class TrainIO {
     array_storage_.write(array);
   }
 
-  void remove_array(size_t train_hs, size_t index) {
-    index_storage_.remove(train_hs, index);
-  }
+  void remove_array(size_t train_hs, size_t index) { index_storage_.remove(train_hs, index); }
 
   void read_array(size_t index, TrainArray &array) {
     array_storage_.seekg(OFFSET + index * SIZE_OF_ARRAY);
     array_storage_.read(array);
   }
-
 };
 class TrainSystem {
   struct Record {
     size_t train_hs{};
     int index_{};
+    DateTimeRange time_range_{};
+    int price_{};
     auto operator<(const Record &rhs) const -> bool { return train_hs < rhs.train_hs; }
   };
   struct Trade {
@@ -212,7 +212,7 @@ class TrainSystem {
   BPT<size_t, TrainMeta> meta_storage_{"mta", 0, 60, 5};
   BPT<size_t, Trade> trade_storage_{"trd", 0, 60, 5};
   BPT<size_t, Record> station_storage_{"st", 0, 60, 5};
-  BPT<pair<size_t ,int>,SeatOfDate> seat_storage_{"se", 0, 600, 5};
+  BPT<pair<size_t, int>, DateInfo> date_info_storage_{"se", 0, 600, 5};
 
 #endif
   QueueSystem q_sys_;

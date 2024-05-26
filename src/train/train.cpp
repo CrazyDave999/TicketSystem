@@ -52,14 +52,14 @@ auto TrainSystem::release_train(const std::string &train_id) -> bool {
   t_io_.read_array(meta.index_, array);
   for (int i = 0; i < meta.station_num_; ++i) {
     auto station_hs = HashBytes(array.stations_[i].c_str());
-    station_storage_.insert(station_hs, {train_hs, i});
+    station_storage_.insert(station_hs, {train_hs, i, array.time_ranges_[i], array.prices_[i]});
   }
   int date_num = meta.sale_date_range_.second - meta.sale_date_range_.first + 1;
   for (int i = 0; i < date_num; ++i) {
-    SeatOfDate seat;
+    DateInfo seat;
     seat.date_index_ = i;
     std::fill_n(seat.seat_num_, meta.station_num_, meta.seat_num_);
-    seat_storage_.insert({train_hs, i}, seat);
+    date_info_storage_.insert({train_hs, i}, seat);
   }
 
   return true;
@@ -94,8 +94,8 @@ auto TrainSystem::query_train(const std::string &train_id, const Date &date) -> 
     return true;
   }
   int j = date - meta.sale_date_range_.first;
-  vector<SeatOfDate> seat_vec;
-  seat_storage_.find({train_hs, j}, seat_vec);
+  vector<DateInfo> seat_vec;
+  date_info_storage_.find({train_hs, j}, seat_vec);
   auto &seat_num = seat_vec[0].seat_num_;
   for (int i = 0; i < meta.station_num_; ++i) {
     std::cout << array.stations_[i] << " " << start_time + array.time_ranges_[i] << " " << array.prices_[i] << " ";
@@ -118,49 +118,49 @@ void TrainSystem::query_ticket(const std::string &station_1, const std::string &
 
   station_storage_.find(station_hs_1, record_vec_1);
   station_storage_.find(station_hs_2, record_vec_2);
-  linked_hashmap<size_t, int> rec_map;
+  linked_hashmap<size_t, Record> rec_map;
   for (auto &rec : record_vec_2) {
-    rec_map.insert({rec.train_hs, rec.index_});
+    rec_map.insert({rec.train_hs, rec});
   }
-  for (auto &rec : record_vec_1) {
+  for (auto &rec_1 : record_vec_1) {
     vector<TrainMeta> meta_vec;
-    meta_storage_.find(rec.train_hs, meta_vec);
+    meta_storage_.find(rec_1.train_hs, meta_vec);
     auto &meta = meta_vec[0];
-    int i1 = rec.index_;  // station index
+    int i1 = rec_1.index_;  // station index
     if (i1 == meta.station_num_ - 1 || !meta.is_released_) {
       continue;
     }
-    TrainArray array;
-    t_io_.read_array(meta.index_, array);
-    int offset = array.time_ranges_[i1].second.date.day_;
+
+    int offset = rec_1.time_range_.second.date.day_;
     auto depart_date = date - offset;  // 发车日期
     if (meta.sale_date_range_.first > depart_date || meta.sale_date_range_.second < depart_date) {
       continue;
     }
-    auto it = rec_map.find(rec.train_hs);
+    auto it = rec_map.find(rec_1.train_hs);
     if (it == rec_map.end()) {
       continue;
     }
-    int i2 = it->second;  // station index
-    if (i1 >= i2) {       // 倒过来开？
+    auto &rec_2 = it->second;
+    int i2 = rec_2.index_;  // station index
+    if (i1 >= i2) {         // 倒过来开？
       continue;
     }
     int min_num = meta.seat_num_;
     int j = depart_date - meta.sale_date_range_.first;  // date index
 
-    vector<SeatOfDate> seat_vec;
-    seat_storage_.find({rec.train_hs, j}, seat_vec);
+    vector<DateInfo> seat_vec;
+    date_info_storage_.find({rec_1.train_hs, j}, seat_vec);
 
     auto &seat_num = seat_vec[0].seat_num_;
     for (int i = i1; i < i2; ++i) {
       min_num = std::min(min_num, seat_num[i]);
     }
-    auto depart_date_time = DateTime{date, array.time_ranges_[i1].second.time};
-    auto arrive_date_time =
-        DateTime{depart_date + array.time_ranges_[i2].first.date.day_, array.time_ranges_[i2].first.time};
-    res_vec.push_back(
-        {meta.train_id_, {depart_date_time, arrive_date_time}, array.prices_[i2] - array.prices_[i1], min_num});
+
+    auto depart_date_time = DateTime{date, rec_1.time_range_.second.time};
+    DateTime arrive_date_time{depart_date + rec_2.time_range_.first.date.day_, rec_2.time_range_.first.time};
+    res_vec.push_back({meta.train_id_, {depart_date_time, arrive_date_time}, rec_2.price_ - rec_1.price_, min_num});
   }
+
   if (type == QueryType::TIME) {
     res_vec.sort([](const TicketResult &r1, const TicketResult &r2) {
       if (r1.total_time() != r2.total_time()) {
@@ -215,8 +215,8 @@ auto TrainSystem::query_transfer(const std::string &station_1, const std::string
       continue;
     }
     int min_num_1 = meta_1.seat_num_;
-    vector<SeatOfDate> seat_vec_1;
-    seat_storage_.find({rec_1.train_hs, j1}, seat_vec_1);
+    vector<DateInfo> seat_vec_1;
+    date_info_storage_.find({rec_1.train_hs, j1}, seat_vec_1);
     auto &seat_num_1 = seat_vec_1[0].seat_num_;
 
     for (int i = i1 + 1; i < meta_1.station_num_; ++i) {
@@ -261,8 +261,8 @@ auto TrainSystem::query_transfer(const std::string &station_1, const std::string
         }
         int j2 = depart_date_2 - meta_2.sale_date_range_.first;  // date index
         int min_num_2 = meta_2.seat_num_;
-        vector<SeatOfDate> seat_vec_2;
-        seat_storage_.find({rec_3.train_hs, j2}, seat_vec_2);
+        vector<DateInfo> seat_vec_2;
+        date_info_storage_.find({rec_3.train_hs, j2}, seat_vec_2);
         auto &seat_num_2 = seat_vec_2[0].seat_num_;
 
         for (int k = i3; k < i2; ++k) {
@@ -368,7 +368,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   int min_num = meta.seat_num_;
   Date depart_date;
 
-  vector<SeatOfDate> seat_vec;
+  vector<DateInfo> seat_vec;
 
   for (int i = 0; i < meta.station_num_; ++i) {
     if (array.stations_[i] == station_2) {
@@ -383,7 +383,7 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
       if (meta.sale_date_range_.first > depart_date || meta.sale_date_range_.second < depart_date) {
         return false;
       }
-      seat_storage_.find({train_hs, j}, seat_vec);
+      date_info_storage_.find({train_hs, j}, seat_vec);
     }
     if (i1 != -1) {
       min_num = std::min(min_num, seat_vec[0].seat_num_[i]);
@@ -396,11 +396,11 @@ auto TrainSystem::buy_ticket(int time_stamp, const std::string &user_name, const
   auto user_hs = HashBytes(user_name.c_str());
   if (min_num >= num) {
     auto &seat_num = seat_vec[0].seat_num_;
-    seat_storage_.remove({train_hs, j}, seat_vec[0]);
+    date_info_storage_.remove({train_hs, j}, seat_vec[0]);
     for (int i = i1; i < i2; ++i) {
       seat_num[i] -= num;
     }
-    seat_storage_.insert({train_hs, j}, seat_vec[0]);
+    date_info_storage_.insert({train_hs, j}, seat_vec[0]);
     std::cout << (array.prices_[i2] - array.prices_[i1]) * num << "\n";
     trade_storage_.insert(
         user_hs, Trade{time_stamp, Status::SUCCESS, train_id, DateTime{depart_date, {}} + array.time_ranges_[i1].second,
@@ -442,16 +442,16 @@ auto TrainSystem::refund_ticket(const std::string &user_name, int n) -> bool {
     auto train_hs = HashBytes(trade.train_id_.c_str());
 
     // 还原座位数量
-    vector<SeatOfDate> seat_vec;
-    seat_storage_.find({train_hs, trade.date_index_}, seat_vec);
+    vector<DateInfo> seat_vec;
+    date_info_storage_.find({train_hs, trade.date_index_}, seat_vec);
     auto &seat = seat_vec[0];
     auto &seat_num = seat.seat_num_;
 
-    seat_storage_.remove({train_hs, trade.date_index_}, seat);
+    date_info_storage_.remove({train_hs, trade.date_index_}, seat);
     for (int i = trade.station_index_1_; i < trade.station_index_2_; ++i) {
       seat_num[i] += trade.num_;
     }
-    seat_storage_.insert({train_hs, trade.date_index_}, seat);
+    date_info_storage_.insert({train_hs, trade.date_index_}, seat);
     check_queue(train_hs, trade.station_index_1_, trade.station_index_2_, trade.date_index_);
   } else {
     for (auto it = q_sys_.begin(); it != q_sys_.end(); ++it) {
@@ -475,8 +475,8 @@ void TrainSystem::check_queue(size_t train_hs, int station_index_1, int station_
       continue;
     }
 
-    vector<SeatOfDate> seat_vec;
-    seat_storage_.find({train_hs, date_index}, seat_vec);
+    vector<DateInfo> seat_vec;
+    date_info_storage_.find({train_hs, date_index}, seat_vec);
     auto &seat = seat_vec[0];
     auto &seat_num = seat.seat_num_;
     int min_num = seat_num[it->station_index_1_];
@@ -491,11 +491,11 @@ void TrainSystem::check_queue(size_t train_hs, int station_index_1, int station_
     auto query = *it;
     q_sys_.erase(it++);
 
-    seat_storage_.remove({train_hs, date_index}, seat);
+    date_info_storage_.remove({train_hs, date_index}, seat);
     for (int i = query.station_index_1_; i < query.station_index_2_; ++i) {
       seat_num[i] -= query.num_;
     }
-    seat_storage_.insert({train_hs, date_index}, seat);
+    date_info_storage_.insert({train_hs, date_index}, seat);
     vector<Trade> trade_vec;
     trade_storage_.find(query.user_hs_, trade_vec);
     auto &trade = trade_vec[trade_vec.size() - 1 - query.trade_index_];
